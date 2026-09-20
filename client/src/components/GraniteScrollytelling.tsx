@@ -369,7 +369,7 @@ export function GraniteScrollytelling() {
                 className="pointer-events-none absolute inset-0 z-20 overflow-hidden bg-black/40 backdrop-blur-[2px]"
               >
                 <img
-                  src="/images/waterfall.jpg"
+                  src="/images/point-of-view.jpeg"
                   alt="Penthouse Granite Waterfall Island"
                   className="h-full w-full object-cover opacity-90 transition-opacity duration-700"
                 />

@@ -2,6 +2,7 @@ import { and, asc, desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { InsertUser, collections, enquiries, gallery, siteContent, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
+import { appendEnquiryToGoogleSheet } from "./googleSheets";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -11,15 +12,15 @@ export const DEFAULT_CONTENT = {
   heroEyebrow: "Premium natural stone · Since 1998",
   heroTitle: "Stone with a point of view.",
   heroCopy: "Architectural granite selected for bold residences, refined hospitality, and spaces made to last generations.",
-  aboutTitle: "The quiet confidence of exceptional stone.",
-  aboutCopy: "From our yard to your project, every slab is inspected for character, consistency, and cut. We pair the drama of natural stone with a precise, considered service—from selection to installation.",
+  aboutTitle: "Nature Creates it, We perfect it.",
+  aboutCopy: "Every piece of stone carries its own character. At SVG, we carefully select, process, and finish natural granite to bring out its lasting beauty- crafted for projects that are built to endure.",
   phone: "9790613468",
   whatsapp: "9790613468",
-  email: "Shrivatsan@icloud.com",
+  email: "sales.svgranites@gmail.com",
   address: "NO.951/3,Poovallikuppam Village Kadampathur Block, Post, Mappedu, Chennai, Tamil Nadu 602105",
   hours: "Mon–Sat · 9:30 AM — 6:30 PM",
   heroImage: "/images/hero.jpg",
-  aboutImage: "/images/waterfall.jpg",
+  aboutImage: "/images/point-of-view.jpeg",
   logoImage: "/images/logo.jpg",
 };
 
@@ -119,6 +120,11 @@ export async function updateGalleryItem(id: number, input: Partial<typeof DEFAUL
 }
 
 export async function createEnquiry(input: typeof enquiries.$inferInsert) {
+  // Asynchronously push to Google Sheets without blocking or failing if Google is slow
+  appendEnquiryToGoogleSheet(input).catch(err => {
+    console.error("[Google Sheets] Async forward error:", err);
+  });
+
   const db = await getDb(); if (!db) return { ...input, id: Date.now(), createdAt: new Date() };
   const result = await db.insert(enquiries).values(input);
   return { id: Number(result[0].insertId), ...input };

@@ -15,7 +15,7 @@ const tabs = [
   { id: "gallery", label: "Project gallery", icon: ImageIcon },
   { id: "enquiries", label: "Enquiries", icon: Inbox },
 ];
-const fallback = { brandName: "Sri Venkateswara Granites", tagline: "Crafted by Nature. Perfected by Us.", heroEyebrow: "Premium natural stone · Since 1998", heroTitle: "Stone with a point of view.", heroCopy: "Architectural granite selected for bold residences, refined hospitality, and spaces made to last generations.", aboutTitle: "The quiet confidence of exceptional stone.", aboutCopy: "From our yard to your project, every slab is inspected for character, consistency, and cut.", phone: "+91 98765 43210", whatsapp: "+91 98765 43210", email: "Shrivatsan@icloud.com", address: "12 Stoneworks Estate, Hosur Road, Bengaluru, Karnataka 560068", hours: "Mon–Sat · 9:30 AM — 6:30 PM", heroImage: "/images/hero.jpg", aboutImage: "/images/waterfall.jpg", logoImage: "/images/logo.jpg" };
+const fallback = { brandName: "Sri Venkateswara Granites", tagline: "Crafted by Nature. Perfected by Us.", heroEyebrow: "Premium natural stone · Since 1998", heroTitle: "Stone with a point of view.", heroCopy: "Architectural granite selected for bold residences, refined hospitality, and spaces made to last generations.", aboutTitle: "Nature Creates it, We perfect it.", aboutCopy: "From our yard to your project, every slab is inspected for character, consistency, and cut.", phone: "+91 98765 43210", whatsapp: "+91 98765 43210", email: "sales.svgranites@gmail.com", address: "12 Stoneworks Estate, Hosur Road, Bengaluru, Karnataka 560068", hours: "Mon–Sat · 9:30 AM — 6:30 PM", heroImage: "/images/hero.jpg", aboutImage: "/images/point-of-view.jpeg", logoImage: "/images/logo.jpg" };
 
 type TabId = typeof tabs[number]["id"];
 
