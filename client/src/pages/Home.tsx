@@ -143,6 +143,69 @@ export default function Home() {
     setFinishStartIndex((prev) => (prev - 1 + finishesCollection.length) % finishesCollection.length);
   };
 
+  // Gallery — all available images cycling from existing assets
+  const galleryImages = [
+    "/images/indian-black.jpg",
+    "/images/absolute-black.jpg",
+    "/images/steel-grey.jpg",
+    "/images/black-galaxy.jpg",
+    "/images/tan-brown.jpg",
+    "/images/slabs-warehouse.jpg",
+    "/images/monument-headstone.jpg",
+    "/images/vases-collection.jpg",
+    "/images/craft-cutting.jpg",
+    "/images/hero-quarry.jpg",
+    "/images/noir-vein.jpg",
+    "/images/waterfall.jpg",
+    "/images/feature-wall.jpg",
+    "/images/cloud-ledger.jpg",
+    "/images/indian-black.jpg",
+    "/images/absolute-black.jpg",
+    "/images/steel-grey.jpg",
+    "/images/black-galaxy.jpg",
+    "/images/tan-brown.jpg",
+    "/images/slabs-warehouse.jpg",
+    "/images/monument-headstone.jpg",
+    "/images/vases-collection.jpg",
+    "/images/craft-cutting.jpg",
+    "/images/hero-quarry.jpg",
+    "/images/noir-vein.jpg",
+    "/images/waterfall.jpg",
+    "/images/feature-wall.jpg",
+    "/images/cloud-ledger.jpg",
+    "/images/indian-black.jpg",
+    "/images/absolute-black.jpg",
+    "/images/steel-grey.jpg",
+    "/images/black-galaxy.jpg",
+    "/images/tan-brown.jpg",
+    "/images/slabs-warehouse.jpg",
+    "/images/monument-headstone.jpg",
+    "/images/vases-collection.jpg",
+    "/images/craft-cutting.jpg",
+    "/images/hero-quarry.jpg",
+    "/images/noir-vein.jpg",
+    "/images/waterfall.jpg",
+  ];
+
+  // Gallery state
+  const GALLERY_PAGE_SIZE = 20; // 5 rows × 4 cols
+  const [galleryExpanded, setGalleryExpanded] = useState(false);
+  const [galleryPage, setGalleryPage] = useState(0);
+
+  const totalGalleryPages = Math.ceil(galleryImages.length / GALLERY_PAGE_SIZE);
+
+  const visibleGalleryImages = galleryExpanded
+    ? galleryImages.slice(galleryPage * GALLERY_PAGE_SIZE, galleryPage * GALLERY_PAGE_SIZE + GALLERY_PAGE_SIZE)
+    : galleryImages.slice(0, 4);
+
+  const galleryNextPage = () => {
+    setGalleryPage((prev) => Math.min(prev + 1, totalGalleryPages - 1));
+  };
+
+  const galleryPrevPage = () => {
+    setGalleryPage((prev) => Math.max(prev - 1, 0));
+  };
+
   const enquiryMutation = trpc.site.enquiry.useMutation({
     onSuccess: () => {
       setForm({ name: "", email: "", phone: "", projectType: "", message: "" });
@@ -212,6 +275,7 @@ export default function Home() {
             <button onClick={() => scrollToSection("gallery")} className="hover:text-white transition-colors">STONES</button>
             <button onClick={() => scrollToSection("finishings")} className="hover:text-white transition-colors">FINISHINGS</button>
             <button onClick={() => scrollToSection("craft")} className="hover:text-white transition-colors">OUR CRAFT</button>
+            <button onClick={() => scrollToSection("photo-gallery")} className="hover:text-white transition-colors">GALLERY</button>
             <button onClick={() => scrollToSection("contact")} className="hover:text-white transition-colors">CONTACT</button>
           </nav>
 
@@ -237,6 +301,7 @@ export default function Home() {
               <button onClick={() => scrollToSection("gallery")} className="text-left hover:text-white py-1">STONES</button>
               <button onClick={() => scrollToSection("finishings")} className="text-left hover:text-white py-1">FINISHINGS</button>
               <button onClick={() => scrollToSection("craft")} className="text-left hover:text-white py-1">OUR CRAFT</button>
+              <button onClick={() => scrollToSection("photo-gallery")} className="text-left hover:text-white py-1">GALLERY</button>
               <button onClick={() => scrollToSection("facility")} className="text-left hover:text-white py-1">FACILITY</button>
               <button onClick={() => scrollToSection("contact")} className="text-left hover:text-white py-1">CONTACT</button>
               <button 
@@ -918,9 +983,120 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ======================================================== */}
+        {/* 8.5 GALLERY SECTION (LIGHT — alternates after dark)      */}
+        {/* ======================================================== */}
+        <section id="photo-gallery" className="bg-[#f7f5f0] text-[#121519] py-16 lg:py-24 border-t border-black/5">
+          <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
+            {/* Section Header */}
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
+              <div>
+                <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#8c8273] mb-3">
+                  GALLERY
+                </div>
+                <h2 className="font-cinzel text-3xl sm:text-4xl font-semibold leading-tight text-[#151310]">
+                  Stone in Every<br />Frame.
+                </h2>
+              </div>
+
+              {/* Pagination arrows — only visible when expanded */}
+              {galleryExpanded && (
+                <div className="flex items-center gap-3 self-end sm:self-auto">
+                  <button
+                    onClick={galleryPrevPage}
+                    disabled={galleryPage === 0}
+                    aria-label="Previous gallery page"
+                    className="group grid h-11 w-11 place-items-center border border-black/20 bg-black/5 hover:border-[#c8a35f] hover:bg-[#c8a35f] text-[#121519] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 rounded-sm"
+                  >
+                    <ChevronLeft className="h-5 w-5 transition-transform group-hover:-translate-x-0.5" />
+                  </button>
+                  <span className="text-[10px] font-mono tracking-widest text-[#8c8273] min-w-[3.5rem] text-center">
+                    {String(galleryPage + 1).padStart(2, "0")} / {String(totalGalleryPages).padStart(2, "0")}
+                  </span>
+                  <button
+                    onClick={galleryNextPage}
+                    disabled={galleryPage >= totalGalleryPages - 1}
+                    aria-label="Next gallery page"
+                    className="group grid h-11 w-11 place-items-center border border-black/20 bg-black/5 hover:border-[#c8a35f] hover:bg-[#c8a35f] text-[#121519] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-300 rounded-sm"
+                  >
+                    <ChevronRight className="h-5 w-5 transition-transform group-hover:translate-x-0.5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Gallery Grid */}
+            <div className="relative">
+              {/* Left edge arrow — visible only when expanded */}
+              {galleryExpanded && (
+                <button
+                  onClick={galleryPrevPage}
+                  disabled={galleryPage === 0}
+                  aria-label="Previous gallery page"
+                  className="absolute -left-5 top-1/2 -translate-y-1/2 z-20 hidden lg:grid h-14 w-9 place-items-center bg-white/90 hover:bg-[#c8a35f] text-[#121519] hover:text-white border-y border-r border-black/15 rounded-r shadow disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-300"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+              )}
+
+              {/* Right edge arrow — visible only when expanded */}
+              {galleryExpanded && (
+                <button
+                  onClick={galleryNextPage}
+                  disabled={galleryPage >= totalGalleryPages - 1}
+                  aria-label="Next gallery page"
+                  className="absolute -right-5 top-1/2 -translate-y-1/2 z-20 hidden lg:grid h-14 w-9 place-items-center bg-white/90 hover:bg-[#c8a35f] text-[#121519] hover:text-white border-y border-l border-black/15 rounded-l shadow disabled:opacity-20 disabled:cursor-not-allowed transition-all duration-300"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </button>
+              )}
+
+              {/* Image grid */}
+              <div
+                className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 transition-all duration-500"
+              >
+                {visibleGalleryImages.map((src, idx) => (
+                  <div
+                    key={`gallery-${galleryPage}-${idx}`}
+                    className="group overflow-hidden bg-gray-200 border border-black/5 shadow-sm rounded-sm aspect-[4/3] cursor-pointer"
+                    style={{ animationDelay: `${(idx % 4) * 60}ms` }}
+                  >
+                    <img
+                      src={src}
+                      alt={`Gallery image ${galleryPage * GALLERY_PAGE_SIZE + idx + 1}`}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      loading="lazy"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Load More / Show Less button */}
+            <div className="mt-10 flex justify-center">
+              {!galleryExpanded ? (
+                <button
+                  onClick={() => { setGalleryExpanded(true); setGalleryPage(0); }}
+                  className="inline-flex items-center gap-2.5 border border-[#151310]/30 hover:border-[#c8a35f] hover:text-[#c8a35f] text-[#151310] px-8 py-3 text-[11px] font-bold uppercase tracking-[0.22em] transition-all duration-300 rounded-sm group"
+                >
+                  <span>LOAD MORE</span>
+                  <ChevronRight className="h-3.5 w-3.5 rotate-90 group-hover:translate-y-0.5 transition-transform" />
+                </button>
+              ) : (
+                <button
+                  onClick={() => { setGalleryExpanded(false); setGalleryPage(0); }}
+                  className="inline-flex items-center gap-2.5 border border-[#151310]/30 hover:border-[#c8a35f] hover:text-[#c8a35f] text-[#151310] px-8 py-3 text-[11px] font-bold uppercase tracking-[0.22em] transition-all duration-300 rounded-sm group"
+                >
+                  <span>SHOW LESS</span>
+                  <ChevronRight className="h-3.5 w-3.5 -rotate-90 group-hover:-translate-y-0.5 transition-transform" />
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
 
         {/* ======================================================== */}
-        {/* 8. FACILITY PROGRESSION & INQUIRY FORM SECTION           */}
+        {/* 9. FACILITY PROGRESSION & INQUIRY FORM SECTION           */}
         {/* ======================================================== */}
         <section id="facility" className="bg-[#edeae1] text-[#151310] py-16 lg:py-24 border-b border-black/10">
           <div className="mx-auto max-w-[1440px] px-6 lg:px-12">
@@ -1167,7 +1343,7 @@ export default function Home() {
               <button onClick={() => scrollToSection("products")} className="hover:text-white transition-colors">Products</button>
               <button onClick={() => scrollToSection("craft")} className="hover:text-white transition-colors">Our Craft</button>
               <button onClick={() => scrollToSection("facility")} className="hover:text-white transition-colors">Facility</button>
-              <button onClick={() => scrollToSection("gallery")} className="hover:text-white transition-colors">Gallery</button>
+              <button onClick={() => scrollToSection("photo-gallery")} className="hover:text-white transition-colors">Gallery</button>
               <button onClick={() => scrollToSection("contact")} className="hover:text-white transition-colors">Contact</button>
             </div>
 
