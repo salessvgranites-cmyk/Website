@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body { margin: 0; background: black; }
+    .map-container { position: relative; width: 1000px; height: 500px; }
+    .map-bg { width: 1000px; height: 500px; }
+    .dot { position: absolute; width: 10px; height: 10px; background: red; border-radius: 50%; transform: translate(-50%, -50%); }
+    .label { position: absolute; color: white; font-family: sans-serif; font-size: 12px; background: black; padding: 2px; }
+  </style>
+</head>
+<body>
+  <div class="map-container">
+    <img src="world-map-bg.jpg" class="map-bg" />
+    
+    <!-- India -->
+    <div class="dot" style="left: 685px; top: 255px;"></div>
+    <div class="label" style="left: 695px; top: 255px;">India (685,255)</div>
+
+    <!-- USA -->
+    <div class="dot" style="left: 220px; top: 180px;"></div>
+    <div class="label" style="left: 230px; top: 180px;">USA (220,180)</div>
+
+    <!-- Canada -->
+    <div class="dot" style="left: 220px; top: 130px;"></div>
+    <div class="label" style="left: 230px; top: 130px;">Canada (220,130)</div>
+
+    <!-- Europe -->
+    <div class="dot" style="left: 520px; top: 170px;"></div>
+    <div class="label" style="left: 530px; top: 170px;">Europe (520,170)</div>
+
+    <!-- Asia -->
+    <div class="dot" style="left: 760px; top: 190px;"></div>
+    <div class="label" style="left: 770px; top: 190px;">Asia (760,190)</div>
+
+    <!-- Australia -->
+    <div class="dot" style="left: 820px; top: 340px;"></div>
+    <div class="label" style="left: 830px; top: 340px;">Australia (820,340)</div>
+  </div>
+</body>
+</html>

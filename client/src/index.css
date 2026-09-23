@@ -9,7 +9,21 @@ body { margin: 0; background: #151310; font-family: "DM Sans", ui-sans-serif, sy
 button, a, input, textarea, select { transition: color .2s cubic-bezier(.23,1,.32,1), background-color .2s cubic-bezier(.23,1,.32,1), border-color .2s cubic-bezier(.23,1,.32,1), transform .2s cubic-bezier(.23,1,.32,1), opacity .2s cubic-bezier(.23,1,.32,1); }
 button:active, a:active { transform: scale(.97); }
 .font-serif { font-family: "Cormorant Garamond", Georgia, serif; }
-.bg-ink { background: #151310; } .bg-ink-soft { background: #201d19; } .bg-ivory { background: #f4f1e9; } .text-ivory { color: #f4f1e9; } .text-ink { color: #151310; } .text-gold { color: #c69b56; } .bg-gold { background: #c69b56; }
+.font-cinzel { font-family: "Cinzel", Georgia, serif; }
+.font-sans { font-family: "DM Sans", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif; }
+.bg-ink { background: #0e1115; } 
+.bg-ink-dark { background: #090b0e; }
+.bg-ink-soft { background: #161a20; } 
+.bg-ink-card { background: #1a1e25; }
+.bg-ivory { background: #f7f5f0; } 
+.bg-ivory-light { background: #ffffff; }
+.bg-ivory-soft { background: #f0ece3; }
+.text-ivory { color: #f4f1e9; } 
+.text-ink { color: #151310; } 
+.text-gold { color: #c8a35f; } 
+.text-gold-light { color: #dec083; }
+.bg-gold { background: #c8a35f; }
+.border-gold { border-color: #c8a35f; }
 .grain-overlay { pointer-events: none; position: fixed; inset: 0; z-index: 60; opacity: .055; mix-blend-mode: screen; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); }
 .hero-wash { background: linear-gradient(90deg, rgba(21,19,16,.93) 0%, rgba(21,19,16,.54) 46%, rgba(21,19,16,.18) 100%), linear-gradient(0deg, rgba(21,19,16,.8) 0%, transparent 46%); }
 .nav-link { position: relative; } .nav-link::after { content: ""; position: absolute; left: 0; bottom: -7px; width: 0; height: 1px; background: #c69b56; transition: width .25s cubic-bezier(.23,1,.32,1); } .nav-link:hover { color: #c69b56; } .nav-link:hover::after { width: 100%; }
