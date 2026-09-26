@@ -67,6 +67,9 @@ export const DEFAULT_CONTENT = {
   metric4Val: "Direct Manufacturer",
   metric4Label: "From India",
   footerCopy: "All rights reserved.",
+  whatsappTemplate: "Hello SV Granites, I visited your website and would like to enquire about your granite products and export pricing.",
+  emailSubjectTemplate: "Enquiry regarding Granite Products & Supply - SV Granites",
+  emailBodyTemplate: "Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!",
 };
 
 export const DEFAULT_COLLECTIONS = [

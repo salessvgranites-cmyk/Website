@@ -1176,15 +1176,19 @@ export default function Home() {
                             .split(/[\n,]+/)
                             .map((s: string) => s.trim())
                             .filter(Boolean)
-                          ).map((email: string, i: number) => (
-                            <a
-                              key={i}
-                              href={`mailto:${email}`}
-                              className="block text-[15px] font-medium text-[#151310] hover:text-[#c8a35f] transition-colors"
-                            >
-                              {email}
-                            </a>
-                          ))}
+                          ).map((email: string, i: number) => {
+                            const emailSubject = encodeURIComponent(content.emailSubjectTemplate || "Enquiry regarding Granite Products & Supply - SV Granites");
+                            const emailBody = encodeURIComponent(content.emailBodyTemplate || "Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!");
+                            return (
+                              <a
+                                key={i}
+                                href={`mailto:${email}?subject=${emailSubject}&body=${emailBody}`}
+                                className="block text-[15px] font-medium text-[#151310] hover:text-[#c8a35f] transition-colors"
+                              >
+                                {email}
+                              </a>
+                            );
+                          })}
                         </div>
                       </div>
 
@@ -1216,10 +1220,11 @@ export default function Home() {
                           ).map((wa: string, i: number) => {
                             const digits = wa.replace(/\D/g, "");
                             const cleanNumber = digits.startsWith("91") && digits.length > 10 ? digits : `91${digits}`;
+                            const waMessage = encodeURIComponent(content.whatsappTemplate || "Hello SV Granites, I visited your website and would like to enquire about your granite products and export pricing.");
                             return (
                               <a
                                 key={i}
-                                href={`https://wa.me/${cleanNumber}`}
+                                href={`https://wa.me/${cleanNumber}?text=${waMessage}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="block text-[15px] font-medium text-[#151310] hover:text-[#25D366] transition-colors"

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation } from "wouter";
 import {
   AlertTriangle, ArrowDown, ArrowUp, ArrowUpRight, ArrowRight, Calendar, Check, ChevronDown, ChevronLeft, ChevronRight, Copy, ExternalLink,
   Eye, EyeOff, FileSpreadsheet, Filter, Grid3X3, HelpCircle, Image as ImageIcon, Inbox, LayoutDashboard, Loader2,
-  LogOut, Mail, MessageSquare, Palette, Phone, Plus, RefreshCw, Save, Search, Sparkles, Star, Trash2, Upload, X, Layers
+  LogOut, Mail, MessageSquare, Palette, Phone, Plus, RefreshCw, Save, Search, Send, Sparkles, Star, Trash2, Upload, X, Layers
 } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -126,11 +127,10 @@ function ImageDropzone({
           onDragLeave={onDragLeave}
           onDrop={onDrop}
           onClick={() => !uploading && inputRef.current?.click()}
-          className={`relative ${className} w-full rounded-2xl border-2 border-dashed flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all duration-200 ${
-            isDragging
+          className={`relative ${className} w-full rounded-2xl border-2 border-dashed flex flex-col items-center justify-center p-6 text-center cursor-pointer transition-all duration-200 ${isDragging
               ? "border-[#d4af37] bg-[#d4af37]/10 scale-[0.99]"
               : "border-white/15 hover:border-[#d4af37] bg-white/[0.02] hover:bg-white/[0.05]"
-          }`}
+            }`}
         >
           {uploading ? (
             <div className="flex flex-col items-center justify-center">
@@ -331,12 +331,17 @@ const FALLBACK_CONTENT = {
   metric4Val: "Direct Manufacturer",
   metric4Label: "From India",
   footerCopy: "All rights reserved.",
+  whatsappTemplate: "Hello SV Granites, I visited your website and would like to enquire about your granite products and export pricing.",
+  emailSubjectTemplate: "Enquiry regarding Granite Products & Supply - SV Granites",
+  emailBodyTemplate: "Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!",
 };
 
 type TabId = typeof tabs[number]["id"];
 
 // ─── Main Admin Component ─────────────────────────────────────────────────────
 export default function Admin() {
+  const [location, setLocation] = useLocation();
+  const isTemplatesView = location === "/admin/templates" || location.startsWith("/admin/templates");
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const utils = trpc.useUtils();
 
@@ -388,122 +393,528 @@ export default function Admin() {
   return (
     <DashboardLayout>
       <div className="admin-shell">
-        <header className="admin-header">
-          <div>
-            <div className="admin-eyebrow">Content Studio · {content.brandName}</div>
-            <h1 className="admin-title font-cinzel">
-              Sri Venkateswara <span className="text-[#d4af37]">Granites.</span>
-            </h1>
-            <p className="admin-subtitle">Live website content management, collections, and photography.</p>
-          </div>
-          <div className="flex items-center gap-3">
-            <a href="/" target="_blank" rel="noreferrer" className="admin-outline"><ExternalLink className="h-3.5 w-3.5" /> View site</a>
-          </div>
-        </header>
+        {isTemplatesView ? (
+          <>
+            <header className="admin-header">
+              <div>
+                <div className="admin-eyebrow">Communication & Links · {content.brandName}</div>
+                <h1 className="admin-title font-cinzel">
+                  Message <span className="text-[#d4af37]">Templates.</span>
+                </h1>
+                <p className="admin-subtitle">
+                  Configure predefined message templates applied to all WhatsApp numbers and Email addresses across the website.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                {isContentDirty && (
+                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-semibold">
+                    <span className="h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span>Unsaved Changes</span>
+                  </div>
+                )}
+                <Button
+                  type="button"
+                  onClick={() => saveContent.mutate(content)}
+                  disabled={saveContent.isPending || !isContentDirty}
+                  className={`admin-gold cursor-pointer ${!isContentDirty ? "opacity-60 cursor-not-allowed" : ""
+                    }`}
+                >
+                  {saveContent.isPending ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                  ) : (
+                    <Save className="h-3.5 w-3.5 mr-1.5" />
+                  )}
+                  Save Templates
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => setLocation("/admin")}
+                  className="admin-outline cursor-pointer"
+                >
+                  <LayoutDashboard className="h-3.5 w-3.5" /> Back to Content Studio
+                </button>
+                <a href="/" target="_blank" rel="noreferrer" className="admin-outline">
+                  <ExternalLink className="h-3.5 w-3.5" /> View live site
+                </a>
+              </div>
+            </header>
 
-        <div className="admin-tabs">
-          {tabs.map((tab) => { const Icon = tab.icon; return (
-            <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`admin-tab ${activeTab === tab.id ? "admin-tab-active" : ""}`}>
-              <Icon className="h-4 w-4" />{tab.label}
-            </button>
-          ); })}
-        </div>
+            <div className="admin-section">
+              <MessageTemplatesSection
+                content={content}
+                setField={setField}
+                saving={saveContent.isPending}
+                isDirty={isContentDirty}
+                onSave={() => saveContent.mutate(content)}
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <header className="admin-header">
+              <div>
+                <div className="admin-eyebrow">Content Studio · {content.brandName}</div>
+                <h1 className="admin-title font-cinzel">
+                  Sri Venkateswara <span className="text-[#d4af37]">Granites.</span>
+                </h1>
+                <p className="admin-subtitle">Live website content management, collections, and photography.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <a href="/" target="_blank" rel="noreferrer" className="admin-outline"><ExternalLink className="h-3.5 w-3.5" /> View site</a>
+              </div>
+            </header>
 
-        {activeTab === "overview" && (
-          <Overview
-            content={content}
-            collections={collections}
-            gallery={gallery}
-            products={products}
-            finishes={finishes}
-            sections={sections}
-            enquiries={enquiries}
-            setActiveTab={setActiveTab}
-          />
-        )}
+            <div className="admin-tabs">
+              {tabs.map((tab) => {
+                const Icon = tab.icon; return (
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`admin-tab ${activeTab === tab.id ? "admin-tab-active" : ""}`}>
+                    <Icon className="h-4 w-4" />{tab.label}
+                  </button>
+                );
+              })}
+            </div>
 
-        {activeTab === "brand" && (
-          <BrandTab content={content} setField={setField} saving={saveContent.isPending}
-            isDirty={isContentDirty}
-            onSave={() => saveContent.mutate(content)}
-            onImageUploaded={(key: string, url: string) => {
-              const updated = { ...content, [key]: url };
-              setContent(updated);
-              saveContent.mutate(updated);
-            }} />
-        )}
+            {activeTab === "overview" && (
+              <Overview
+                content={content}
+                collections={collections}
+                gallery={gallery}
+                products={products}
+                finishes={finishes}
+                sections={sections}
+                enquiries={enquiries}
+                setActiveTab={setActiveTab}
+              />
+            )}
 
-        {activeTab === "products" && (
-          <DynamicTab
-            title="Products" eyebrow="Product catalogue" description="Add, remove, and reorder the products shown on the site. Click the image to upload a new photo."
-            items={products} isLoading={productsQuery.isLoading}
-            fields={["name", "description"]}
-            imageKey="imageUrl"
-            onRefresh={() => { productsQuery.refetch(); invalidateSite(); }}
-            createMutation={trpc.admin.createProduct.useMutation}
-            saveMutation={trpc.admin.saveProduct.useMutation}
-            deleteMutation={trpc.admin.deleteProduct.useMutation}
-            toggleMutation={trpc.admin.toggleProductVisibility.useMutation}
-            reorderMutation={trpc.admin.reorderProducts.useMutation}
-            newItemDefaults={{ name: "New Product", description: "Describe this product...", imageUrl: "", sortOrder: products.length + 1 }}
-          />
-        )}
+            {activeTab === "brand" && (
+              <BrandTab content={content} setField={setField} saving={saveContent.isPending}
+                isDirty={isContentDirty}
+                onSave={() => saveContent.mutate(content)}
+                onImageUploaded={(key: string, url: string) => {
+                  const updated = { ...content, [key]: url };
+                  setContent(updated);
+                  saveContent.mutate(updated);
+                }} />
+            )}
 
-        {activeTab === "collections" && (
-          <DynamicTab
-            title="Collections" eyebrow="Stone collections" description="Manage the stone collection library. The top featured items appear first on the public site."
-            items={collections} isLoading={collectionsQuery.isLoading}
-            fields={["name", "category", "finish", "description"]}
-            imageKey="imageUrl"
-            onRefresh={() => { collectionsQuery.refetch(); invalidateSite(); }}
-            createMutation={trpc.admin.createCollection.useMutation}
-            saveMutation={trpc.admin.saveCollection.useMutation}
-            deleteMutation={trpc.admin.deleteCollection.useMutation}
-            toggleMutation={trpc.admin.toggleCollectionVisibility.useMutation}
-            reorderMutation={trpc.admin.reorderCollections.useMutation}
-            newItemDefaults={{ name: "New Stone", category: "Category", finish: "Polished", description: "Describe this stone...", imageUrl: "", isFeatured: 1, sortOrder: collections.length + 1 }}
-          />
-        )}
+            {activeTab === "products" && (
+              <DynamicTab
+                title="Products" eyebrow="Product catalogue" description="Add, remove, and reorder the products shown on the site. Click the image to upload a new photo."
+                items={products} isLoading={productsQuery.isLoading}
+                fields={["name", "description"]}
+                imageKey="imageUrl"
+                onRefresh={() => { productsQuery.refetch(); invalidateSite(); }}
+                createMutation={trpc.admin.createProduct.useMutation}
+                saveMutation={trpc.admin.saveProduct.useMutation}
+                deleteMutation={trpc.admin.deleteProduct.useMutation}
+                toggleMutation={trpc.admin.toggleProductVisibility.useMutation}
+                reorderMutation={trpc.admin.reorderProducts.useMutation}
+                newItemDefaults={{ name: "New Product", description: "Describe this product...", imageUrl: "", sortOrder: products.length + 1 }}
+              />
+            )}
 
-        {activeTab === "finishes" && (
-          <DynamicTab
-            title="Finishes" eyebrow="Surface finishes" description="Showcase the surface finishes SVG offers. Each finish has a name, tagline, description, and badge."
-            items={finishes} isLoading={finishesQuery.isLoading}
-            fields={["name", "tagline", "badge", "description"]}
-            imageKey="imageUrl"
-            onRefresh={() => { finishesQuery.refetch(); invalidateSite(); }}
-            createMutation={trpc.admin.createFinish.useMutation}
-            saveMutation={trpc.admin.saveFinish.useMutation}
-            deleteMutation={trpc.admin.deleteFinish.useMutation}
-            toggleMutation={trpc.admin.toggleFinishVisibility.useMutation}
-            reorderMutation={trpc.admin.reorderFinishes.useMutation}
-            newItemDefaults={{ name: "New Finish", tagline: "A distinctive surface.", description: "Describe this finish...", badge: "New", imageUrl: "", sortOrder: finishes.length + 1 }}
-          />
-        )}
+            {activeTab === "collections" && (
+              <DynamicTab
+                title="Collections" eyebrow="Stone collections" description="Manage the stone collection library. The top featured items appear first on the public site."
+                items={collections} isLoading={collectionsQuery.isLoading}
+                fields={["name", "category", "finish", "description"]}
+                imageKey="imageUrl"
+                onRefresh={() => { collectionsQuery.refetch(); invalidateSite(); }}
+                createMutation={trpc.admin.createCollection.useMutation}
+                saveMutation={trpc.admin.saveCollection.useMutation}
+                deleteMutation={trpc.admin.deleteCollection.useMutation}
+                toggleMutation={trpc.admin.toggleCollectionVisibility.useMutation}
+                reorderMutation={trpc.admin.reorderCollections.useMutation}
+                newItemDefaults={{ name: "New Stone", category: "Category", finish: "Polished", description: "Describe this stone...", imageUrl: "", isFeatured: 1, sortOrder: collections.length + 1 }}
+              />
+            )}
 
-        {activeTab === "gallery" && (
-          <GalleryTab
-            gallery={gallery} isLoading={galleryQuery.isLoading}
-            onRefresh={() => { galleryQuery.refetch(); invalidateSite(); }}
-          />
-        )}
+            {activeTab === "finishes" && (
+              <DynamicTab
+                title="Finishes" eyebrow="Surface finishes" description="Showcase the surface finishes SVG offers. Each finish has a name, tagline, description, and badge."
+                items={finishes} isLoading={finishesQuery.isLoading}
+                fields={["name", "tagline", "badge", "description"]}
+                imageKey="imageUrl"
+                onRefresh={() => { finishesQuery.refetch(); invalidateSite(); }}
+                createMutation={trpc.admin.createFinish.useMutation}
+                saveMutation={trpc.admin.saveFinish.useMutation}
+                deleteMutation={trpc.admin.deleteFinish.useMutation}
+                toggleMutation={trpc.admin.toggleFinishVisibility.useMutation}
+                reorderMutation={trpc.admin.reorderFinishes.useMutation}
+                newItemDefaults={{ name: "New Finish", tagline: "A distinctive surface.", description: "Describe this finish...", badge: "New", imageUrl: "", sortOrder: finishes.length + 1 }}
+              />
+            )}
 
-        {activeTab === "sections" && (
-          <SectionsTab sections={sections} isLoading={sectionsQuery.isLoading} onRefresh={() => { sectionsQuery.refetch(); invalidateSite(); }} />
-        )}
+            {activeTab === "gallery" && (
+              <GalleryTab
+                gallery={gallery} isLoading={galleryQuery.isLoading}
+                onRefresh={() => { galleryQuery.refetch(); invalidateSite(); }}
+              />
+            )}
 
-        {activeTab === "enquiries" && (
-          <EnquiriesTab
-            enquiries={enquiries}
-            isLoading={enquiriesQuery.isLoading}
-            onRefresh={enquiriesQuery.refetch}
-            content={content}
-            setField={setField}
-            onSaveContent={() => saveContent.mutate(content)}
-          />
+            {activeTab === "sections" && (
+              <SectionsTab sections={sections} isLoading={sectionsQuery.isLoading} onRefresh={() => { sectionsQuery.refetch(); invalidateSite(); }} />
+            )}
+
+            {activeTab === "enquiries" && (
+              <EnquiriesTab
+                enquiries={enquiries}
+                isLoading={enquiriesQuery.isLoading}
+                onRefresh={enquiriesQuery.refetch}
+                content={content}
+                setField={setField}
+                onSaveContent={() => saveContent.mutate(content)}
+              />
+            )}
+          </>
         )}
       </div>
     </DashboardLayout>
+  );
+}
+
+// ─── Message Templates Section ──────────────────────────────────────────────
+function MessageTemplatesSection({
+  content,
+  setField,
+  saving,
+  isDirty,
+  onSave,
+}: {
+  content: any;
+  setField: (key: string, value: string) => void;
+  saving: boolean;
+  isDirty: boolean;
+  onSave: () => void;
+}) {
+  const [copiedType, setCopiedType] = useState<string | null>(null);
+
+  // Extract phone numbers and emails for test action
+  const allPhones = (content.whatsapp || "9790613468")
+    .split(/[\n,]+/)
+    .map((s: string) => s.trim())
+    .filter(Boolean);
+  const firstRawPhone = allPhones[0] || "9790613468";
+  const cleanPhoneDigits = firstRawPhone.replace(/\D/g, "");
+  const testPhone = cleanPhoneDigits.startsWith("91") && cleanPhoneDigits.length > 10
+    ? cleanPhoneDigits
+    : `91${cleanPhoneDigits}`;
+  const whatsappTestUrl = `https://wa.me/${testPhone}?text=${encodeURIComponent(content.whatsappTemplate || "")}`;
+
+  const allEmails = (content.email || "sales.svgranites@gmail.com")
+    .split(/[\n,]+/)
+    .map((s: string) => s.trim())
+    .filter(Boolean);
+  const testEmail = allEmails[0] || "sales.svgranites@gmail.com";
+  const emailMailtoUrl = `mailto:${testEmail}?subject=${encodeURIComponent(content.emailSubjectTemplate || "")}&body=${encodeURIComponent(content.emailBodyTemplate || "")}`;
+
+  const handleCopy = (text: string, type: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedType(type);
+    toast.success(`${label} copied to clipboard!`);
+    setTimeout(() => setCopiedType(null), 2000);
+  };
+
+  const resetWhatsapp = () => {
+    setField("whatsappTemplate", FALLBACK_CONTENT.whatsappTemplate);
+    toast.info("WhatsApp template reset to default");
+  };
+
+  const resetEmail = () => {
+    setField("emailSubjectTemplate", FALLBACK_CONTENT.emailSubjectTemplate);
+    setField("emailBodyTemplate", FALLBACK_CONTENT.emailBodyTemplate);
+    toast.info("Email templates reset to default");
+  };
+
+  const insertSnippet = (snippet: string) => {
+    const current = content.whatsappTemplate || "";
+    setField("whatsappTemplate", current ? `${current}\n${snippet}` : snippet);
+    toast.success("Appended suggestion!");
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Symmetrical Two-Column Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-stretch">
+        {/* ======================================================== */}
+        {/* WHATSAPP CARD                                            */}
+        {/* ======================================================== */}
+        <div className="rounded-2xl border border-emerald-500/25 bg-[#0e1713]/90 p-6 shadow-xl flex flex-col justify-between">
+          <div className="space-y-5">
+            {/* Header */}
+            <div className="flex items-start justify-between gap-3 border-b border-emerald-500/15 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
+                  <MessageSquare className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">WhatsApp Template</h3>
+                    <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+                      All WhatsApp Links
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    Pre-fills message text when visitors click any WhatsApp number on the website.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={resetWhatsapp}
+                className="text-[11px] text-stone-400 hover:text-white hover:underline flex items-center gap-1 transition-colors cursor-pointer shrink-0 mt-1"
+                title="Reset to factory default"
+              >
+                <RefreshCw className="h-3 w-3" /> Reset default
+              </button>
+            </div>
+
+            {/* Template Input Form */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-bold uppercase tracking-wider text-stone-300">
+                  Predefined Message Text
+                </label>
+                <span className="text-[11px] text-stone-500">
+                  {(content.whatsappTemplate || "").length} characters
+                </span>
+              </div>
+              <Textarea
+                rows={6}
+                value={content.whatsappTemplate || ""}
+                onChange={(e) => setField("whatsappTemplate", e.target.value)}
+                placeholder="Enter the default WhatsApp enquiry message..."
+                className="bg-black/50 border-emerald-500/30 text-white placeholder:text-stone-500 focus:border-emerald-400 focus:ring-emerald-400/20 text-sm leading-relaxed rounded-xl min-h-[148px] resize-y"
+              />
+            </div>
+
+            {/* Quick Suggestions */}
+            <div className="space-y-1.5">
+              <span className="text-[10px] font-bold text-stone-400 uppercase tracking-wider">Quick Suggestions:</span>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "Could you share your granite catalogue & price list?",
+                  "Interested in slabs and cut-to-size export.",
+                  "Looking for Indian Black Granite / Absolute Black.",
+                  "Please provide CIF / FOB freight quotation."
+                ].map((chip) => (
+                  <button
+                    key={chip}
+                    type="button"
+                    onClick={() => insertSnippet(chip)}
+                    className="text-[11px] bg-emerald-950/40 hover:bg-emerald-900/60 text-emerald-300/90 border border-emerald-500/20 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                  >
+                    + {chip}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Live WhatsApp Chat Bubble Preview */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-stone-400">Live Visitor View Preview</span>
+                <span className="text-[10px] text-emerald-400">Visitor's Chat Screen</span>
+              </div>
+              <div className="rounded-xl border border-emerald-500/20 bg-[#0b141a] overflow-hidden shadow-inner flex flex-col h-[200px]">
+                <div className="bg-[#1f2c34] px-4 py-2 border-b border-white/5 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-full bg-emerald-600 flex items-center justify-center text-white text-[10px] font-bold font-cinzel">
+                      SV
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-white leading-tight">Sri Venkateswara Granites</div>
+                      <div className="text-[9px] text-emerald-400 leading-none">Official Business · Online</div>
+                    </div>
+                  </div>
+                  <Badge className="bg-emerald-500/10 text-emerald-400 border-0 text-[9px]">WhatsApp</Badge>
+                </div>
+
+                <div className="p-4 bg-[radial-gradient(#1f2c34_1px,transparent_1px)] [background-size:16px_16px] bg-[#0b141a] flex-1 overflow-y-auto flex items-end justify-end">
+                  <div className="max-w-[88%] rounded-2xl rounded-tr-xs bg-[#005c4b] text-white p-3 shadow-md border border-emerald-400/20 text-xs leading-relaxed space-y-1">
+                    <p className="whitespace-pre-wrap">{content.whatsappTemplate || "(No message template configured)"}</p>
+                    <div className="flex items-center justify-end gap-1 text-[9px] text-emerald-200/70 pt-0.5">
+                      <span>10:45 AM</span>
+                      <span className="text-[#53bdeb] font-bold">✓✓</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Footer */}
+          <div className="pt-5 border-t border-emerald-500/15 mt-6 flex items-center justify-between gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleCopy(content.whatsappTemplate || "", "wa", "Message template")}
+              className="text-xs border-emerald-500/30 text-emerald-300 hover:bg-emerald-950/40 cursor-pointer"
+            >
+              {copiedType === "wa" ? <Check className="h-3.5 w-3.5 mr-1.5 text-emerald-400" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
+              Copy Message Text
+            </Button>
+
+            <a
+              href={whatsappTestUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs px-4 py-2 rounded-xl transition-all shadow-md shadow-emerald-950/50 cursor-pointer"
+            >
+              <ExternalLink className="h-3.5 w-3.5" /> Test in WhatsApp
+            </a>
+          </div>
+        </div>
+
+        {/* ======================================================== */}
+        {/* EMAIL CARD                                               */}
+        {/* ======================================================== */}
+        <div className="rounded-2xl border border-[#d4af37]/30 bg-[#16140e]/90 p-6 shadow-xl flex flex-col justify-between">
+          <div className="space-y-5">
+            {/* Header */}
+            <div className="flex items-start justify-between gap-3 border-b border-[#d4af37]/15 pb-4">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-xl bg-[#d4af37]/20 border border-[#d4af37]/40 flex items-center justify-center text-[#d4af37] shrink-0">
+                  <Mail className="h-5 w-5" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">Email Template</h3>
+                    <span className="text-[10px] font-semibold text-[#d4af37] bg-[#d4af37]/10 px-2 py-0.5 rounded-full border border-[#d4af37]/20">
+                      All Email Links
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-400 mt-0.5">
+                    Pre-fills subject and body when visitors click any Email address on the website.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={resetEmail}
+                className="text-[11px] text-stone-400 hover:text-white hover:underline flex items-center gap-1 transition-colors cursor-pointer shrink-0 mt-1"
+                title="Reset to factory default"
+              >
+                <RefreshCw className="h-3 w-3" /> Reset default
+              </button>
+            </div>
+
+            {/* Template Input Form */}
+            <div className="space-y-3.5">
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-stone-300">
+                    Email Subject Line
+                  </label>
+                  <span className="text-[11px] text-stone-500">
+                    {(content.emailSubjectTemplate || "").length} characters
+                  </span>
+                </div>
+                <Input
+                  value={content.emailSubjectTemplate || ""}
+                  onChange={(e) => setField("emailSubjectTemplate", e.target.value)}
+                  placeholder="e.g. Enquiry regarding Granite Products & Supply - SV Granites"
+                  className="bg-black/50 border-[#d4af37]/30 text-white placeholder:text-stone-500 focus:border-[#d4af37] focus:ring-[#d4af37]/20 text-sm h-10 rounded-xl"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-bold uppercase tracking-wider text-stone-300">
+                    Email Body Text
+                  </label>
+                  <span className="text-[11px] text-stone-500">
+                    {(content.emailBodyTemplate || "").length} characters
+                  </span>
+                </div>
+                <Textarea
+                  rows={4}
+                  value={content.emailBodyTemplate || ""}
+                  onChange={(e) => setField("emailBodyTemplate", e.target.value)}
+                  placeholder="Enter standard greeting, enquiry questions, and signoff..."
+                  className="bg-black/50 border-[#d4af37]/30 text-white placeholder:text-stone-500 focus:border-[#d4af37] focus:ring-[#d4af37]/20 text-sm leading-relaxed rounded-xl min-h-[96px] resize-y"
+                />
+              </div>
+            </div>
+
+            {/* Live Email Composer Preview */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-stone-400">Live Visitor View Preview</span>
+                <span className="text-[10px] text-[#dec083]">Visitor's Email App</span>
+              </div>
+              <div className="rounded-xl border border-[#d4af37]/20 bg-[#121316] overflow-hidden shadow-inner flex flex-col h-[200px]">
+                <div className="bg-[#1c1e24] px-4 py-2 border-b border-white/5 flex items-center justify-between shrink-0">
+                  <div className="flex items-center gap-1.5">
+                    <div className="h-2.5 w-2.5 rounded-full bg-red-500/80"></div>
+                    <div className="h-2.5 w-2.5 rounded-full bg-yellow-500/80"></div>
+                    <div className="h-2.5 w-2.5 rounded-full bg-green-500/80"></div>
+                    <span className="ml-2 text-[10px] text-stone-400 font-medium">Draft Message Preview</span>
+                  </div>
+                  <Badge className="bg-[#d4af37]/10 text-[#d4af37] border-0 text-[9px]">Email</Badge>
+                </div>
+
+                <div className="p-3.5 space-y-1.5 bg-[#121316] flex-1 overflow-y-auto">
+                  <div className="flex items-center gap-2 border-b border-white/5 pb-1 text-stone-400 text-[11px]">
+                    <span className="font-semibold text-stone-500 w-12">To:</span>
+                    <span className="font-mono text-stone-300">All Registered Email Addresses</span>
+                  </div>
+                  <div className="flex items-center gap-2 border-b border-white/5 pb-1 text-stone-400 text-[11px]">
+                    <span className="font-semibold text-stone-500 w-12">Subject:</span>
+                    <span className="font-medium text-white truncate">{content.emailSubjectTemplate || "(No subject configured)"}</span>
+                  </div>
+                  <div className="pt-1 text-stone-300 whitespace-pre-wrap font-sans text-xs leading-relaxed">
+                    {content.emailBodyTemplate || "(No body text configured)"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Footer */}
+          <div className="pt-5 border-t border-[#d4af37]/15 mt-6 flex items-center justify-between gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => handleCopy(`${content.emailSubjectTemplate || ""}\n\n${content.emailBodyTemplate || ""}`, "email", "Email template")}
+              className="text-xs border-[#d4af37]/30 text-[#dec083] hover:bg-[#d4af37]/10 cursor-pointer"
+            >
+              {copiedType === "email" ? <Check className="h-3.5 w-3.5 mr-1.5 text-[#d4af37]" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
+              Copy Email Template
+            </Button>
+
+            <a
+              href={emailMailtoUrl}
+              className="inline-flex items-center gap-1.5 bg-[#d4af37] hover:bg-[#dec083] text-black font-semibold text-xs px-4 py-2 rounded-xl transition-all shadow-md shadow-black/40 cursor-pointer"
+            >
+              <ExternalLink className="h-3.5 w-3.5" /> Test in Email
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* Floating Save Pill: Only appears when there are unsaved changes! */}
+      {isDirty && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <div className="rounded-full bg-[#13161b] border-2 border-[#d4af37] p-2 pl-4 shadow-2xl flex items-center gap-3">
+            <span className="flex h-2.5 w-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+            <span className="text-xs font-semibold text-white">Unsaved Changes</span>
+            <Button
+              type="button"
+              onClick={onSave}
+              disabled={saving}
+              className="admin-gold text-xs font-bold px-4 py-1.5 rounded-full cursor-pointer shadow-lg"
+            >
+              {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <Save className="h-3.5 w-3.5 mr-1.5" />}
+              Save Changes
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -603,7 +1014,7 @@ function BrandTab({ content, setField, saving, isDirty, onSave, onImageUploaded 
         <div className="admin-eyebrow text-[#d4af37]">Our Facility</div>
         <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white">From Quarry to Container — 5 Process Photos</h3>
         <p className="mt-1 text-xs text-stone-400 mb-4">These 5 photos show your production pipeline in the Facility section on the website.</p>
-        
+
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-5 mb-6">
           {[
             { label: "1. Quarry", key: "facilityImage1" },
@@ -1485,9 +1896,8 @@ function StatusFilterDropdown({
       <button
         type="button"
         onClick={toggle}
-        className={`cursor-pointer inline-flex items-center gap-2 rounded-xl bg-[#14171d] hover:bg-[#1a1e26] border px-3 py-1.5 text-xs font-medium text-stone-200 transition-all shadow-sm ${
-          open ? "border-[#d4af37] ring-2 ring-[#d4af37]/20" : "border-white/10 hover:border-[#d4af37]/40"
-        }`}
+        className={`cursor-pointer inline-flex items-center gap-2 rounded-xl bg-[#14171d] hover:bg-[#1a1e26] border px-3 py-1.5 text-xs font-medium text-stone-200 transition-all shadow-sm ${open ? "border-[#d4af37] ring-2 ring-[#d4af37]/20" : "border-white/10 hover:border-[#d4af37]/40"
+          }`}
       >
         <span className={`h-2 w-2 rounded-full ${current.dot}`}></span>
         <span className="font-semibold text-white">{current.label}</span>
@@ -1496,9 +1906,8 @@ function StatusFilterDropdown({
 
       {open && (
         <div
-          className={`absolute right-0 z-50 w-48 rounded-xl border border-[#d4af37]/40 bg-[#161a22] p-1.5 shadow-2xl shadow-black/90 backdrop-blur-md animate-in fade-in-0 zoom-in-95 ${
-            dropUp ? "bottom-full mb-1.5" : "top-full mt-1.5"
-          }`}
+          className={`absolute right-0 z-50 w-48 rounded-xl border border-[#d4af37]/40 bg-[#161a22] p-1.5 shadow-2xl shadow-black/90 backdrop-blur-md animate-in fade-in-0 zoom-in-95 ${dropUp ? "bottom-full mb-1.5" : "top-full mt-1.5"
+            }`}
         >
           <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-500">
             Filter Status
@@ -1513,11 +1922,10 @@ function StatusFilterDropdown({
                   onChange(opt.id);
                   setOpen(false);
                 }}
-                className={`cursor-pointer w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${
-                  isSelected
+                className={`cursor-pointer w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${isSelected
                     ? "bg-[#d4af37]/20 text-[#d4af37] font-bold"
                     : "text-stone-300 hover:bg-white/10 hover:text-white"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${opt.dot}`}></span>
@@ -1588,9 +1996,8 @@ function EnquiryStatusDropdown({
         type="button"
         disabled={disabled}
         onClick={toggle}
-        className={`cursor-pointer inline-flex items-center justify-between gap-2 rounded-xl bg-[#14171d] hover:bg-[#1a1e26] border px-3 py-1.5 text-xs font-medium transition-all shadow-sm w-36 ${
-          open ? "border-[#d4af37] ring-2 ring-[#d4af37]/20" : "border-white/15 hover:border-[#d4af37]/50"
-        } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+        className={`cursor-pointer inline-flex items-center justify-between gap-2 rounded-xl bg-[#14171d] hover:bg-[#1a1e26] border px-3 py-1.5 text-xs font-medium transition-all shadow-sm w-36 ${open ? "border-[#d4af37] ring-2 ring-[#d4af37]/20" : "border-white/15 hover:border-[#d4af37]/50"
+          } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       >
         <span className="flex items-center gap-2">
           <span className={`h-2 w-2 rounded-full ${current.dot}`}></span>
@@ -1601,9 +2008,8 @@ function EnquiryStatusDropdown({
 
       {open && (
         <div
-          className={`absolute right-0 z-50 w-36 rounded-xl border border-[#d4af37]/40 bg-[#161a22] p-1.5 shadow-2xl shadow-black/90 backdrop-blur-md animate-in fade-in-0 zoom-in-95 ${
-            dropUp ? "bottom-full mb-1.5" : "top-full mt-1.5"
-          }`}
+          className={`absolute right-0 z-50 w-36 rounded-xl border border-[#d4af37]/40 bg-[#161a22] p-1.5 shadow-2xl shadow-black/90 backdrop-blur-md animate-in fade-in-0 zoom-in-95 ${dropUp ? "bottom-full mb-1.5" : "top-full mt-1.5"
+            }`}
         >
           {options.map((opt) => {
             const isSelected = opt.id === status;
@@ -1615,11 +2021,10 @@ function EnquiryStatusDropdown({
                   onChange(opt.id);
                   setOpen(false);
                 }}
-                className={`cursor-pointer w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${
-                  isSelected
+                className={`cursor-pointer w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${isSelected
                     ? "bg-[#d4af37]/20 text-[#d4af37] font-bold"
                     : "text-stone-300 hover:bg-white/10 hover:text-white"
-                }`}
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${opt.dot}`}></span>
@@ -1926,7 +2331,7 @@ function doPost(e) {
       {/* Filter Options Bar: Date, Status, Search */}
       <div className="mb-6 rounded-2xl border border-white/10 bg-[#13161b] p-4 space-y-4">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-          
+
           {/* Search box */}
           <div className="relative w-full lg:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
@@ -1963,11 +2368,10 @@ function doPost(e) {
               <button
                 key={p.id}
                 onClick={() => setDateFilter(p.id)}
-                className={`cursor-pointer px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
-                  dateFilter === p.id
+                className={`cursor-pointer px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${dateFilter === p.id
                     ? "bg-[#d4af37] text-black font-semibold shadow-sm"
                     : "bg-white/5 hover:bg-white/10 text-stone-300"
-                }`}
+                  }`}
               >
                 {p.label}
               </button>
@@ -2032,13 +2436,12 @@ function doPost(e) {
                 title={isAllFilteredSelected ? "Deselect all in current filter" : "Select all in current filter"}
               >
                 <span
-                  className={`h-4 w-4 rounded border flex items-center justify-center transition-all ${
-                    isAllFilteredSelected
+                  className={`h-4 w-4 rounded border flex items-center justify-center transition-all ${isAllFilteredSelected
                       ? "bg-[#d4af37] border-[#d4af37] text-black shadow-sm"
                       : isSomeFilteredSelected
-                      ? "bg-[#d4af37]/30 border-[#d4af37] text-white"
-                      : "border-white/30 bg-white/5 hover:border-[#d4af37]/60"
-                  }`}
+                        ? "bg-[#d4af37]/30 border-[#d4af37] text-white"
+                        : "border-white/30 bg-white/5 hover:border-[#d4af37]/60"
+                    }`}
                 >
                   {isAllFilteredSelected ? (
                     <Check className="h-3 w-3 stroke-[3]" />
@@ -2137,12 +2540,12 @@ function doPost(e) {
               const isSelected = selectedIds.includes(item.id);
               const formattedDate = item.createdAt
                 ? new Date(item.createdAt).toLocaleString("en-IN", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
                 : "Recent";
 
               const cleanPhone = item.phone ? item.phone.replace(/\\D/g, "") : "";
@@ -2150,24 +2553,22 @@ function doPost(e) {
               return (
                 <div
                   key={item.id}
-                  className={`enquiry-row transition-colors ${
-                    isSelected
+                  className={`enquiry-row transition-colors ${isSelected
                       ? "bg-[#d4af37]/[0.08] border-l-4 border-l-[#d4af37]"
                       : isNew
-                      ? "border-l-4 border-l-[#d4af37] bg-[#d4af37]/[0.03]"
-                      : ""
-                  }`}
+                        ? "border-l-4 border-l-[#d4af37] bg-[#d4af37]/[0.03]"
+                        : ""
+                    }`}
                 >
                   {/* Row Checkbox */}
                   <div className="pt-1 shrink-0">
                     <button
                       type="button"
                       onClick={() => handleToggleRow(item.id)}
-                      className={`cursor-pointer h-5 w-5 rounded-md border flex items-center justify-center transition-all ${
-                        isSelected
+                      className={`cursor-pointer h-5 w-5 rounded-md border flex items-center justify-center transition-all ${isSelected
                           ? "bg-[#d4af37] border-[#d4af37] text-black shadow-sm"
                           : "border-white/20 bg-white/5 hover:border-[#d4af37]/60 hover:bg-[#d4af37]/10 text-transparent"
-                      }`}
+                        }`}
                       title={isSelected ? "Deselect enquiry" : "Select enquiry"}
                     >
                       <Check className={`h-3.5 w-3.5 stroke-[3] ${isSelected ? "opacity-100" : "opacity-0"}`} />
@@ -2207,20 +2608,20 @@ function doPost(e) {
                       )}
                       {cleanPhone && (
                         <a
-                          href={`https://wa.me/${cleanPhone}`}
+                          href={`https://wa.me/${cleanPhone}?text=${encodeURIComponent(`Hello ${item.name || "there"}, thank you for reaching out to Sri Venkateswara Granites regarding your enquiry.`)}`}
                           target="_blank"
                           rel="noreferrer"
                           className="hover:text-emerald-400 text-stone-400 transition-colors flex items-center gap-1"
-                          title="Chat on WhatsApp"
+                          title="Reply on WhatsApp with prefilled message"
                         >
                           <MessageSquare className="h-3 w-3 text-emerald-400" /> WhatsApp
                         </a>
                       )}
                       {item.email && (
                         <a
-                          href={`mailto:${item.email}`}
+                          href={`mailto:${item.email}?subject=${encodeURIComponent(`Re: Enquiry from ${item.name || "Customer"} - Sri Venkateswara Granites`)}&body=${encodeURIComponent(`Dear ${item.name || "Customer"},\n\nThank you for reaching out to Sri Venkateswara Granites.\n\nRegarding your enquiry:\n"${item.message || ""}"\n\n`)}`}
                           className="hover:text-[#d4af37] transition-colors flex items-center gap-1 text-stone-300"
-                          title="Send Email"
+                          title="Reply via Email with prefilled enquiry details"
                         >
                           <Mail className="h-3 w-3 text-[#d4af37]" /> {item.email}
                         </a>
@@ -2298,11 +2699,11 @@ function doPost(e) {
                 <p className="text-xs text-stone-400">Batch deletion confirmation</p>
               </div>
             </div>
-            
+
             <p className="text-xs text-stone-300 leading-relaxed mt-2">
               Are you sure you want to permanently delete these <span className="text-white font-bold">{selectedIds.length}</span> selected enquiries?
             </p>
-            
+
             <div className="my-3 rounded-xl bg-black/40 border border-white/5 p-3 text-[11px] text-stone-400 space-y-1">
               <div className="flex items-center gap-1.5 text-stone-300">
                 <Check className="h-3.5 w-3.5 text-emerald-400" /> Removed from Website Database
@@ -2418,11 +2819,10 @@ function Stat({ label, value, note, icon: Icon, onClick, isHighlighted, highligh
   return (
     <div
       onClick={onClick}
-      className={`stat-card cursor-pointer group transition-all duration-300 ${
-        isHighlighted
+      className={`stat-card cursor-pointer group transition-all duration-300 ${isHighlighted
           ? "border-[#d4af37] bg-gradient-to-b from-[#d4af37]/15 to-[#13161b] shadow-[0_0_25px_rgba(212,175,55,0.22)] ring-1 ring-[#d4af37]/50"
           : ""
-      }`}
+        }`}
       title={`Go to ${label} tab`}
     >
       <div className="flex items-center justify-between">

@@ -85,6 +85,9 @@ const contentInput = z.object({
   metric4Val: z.string().nullish(),
   metric4Label: z.string().nullish(),
   footerCopy: z.string().nullish(),
+  whatsappTemplate: z.string().nullish(),
+  emailSubjectTemplate: z.string().nullish(),
+  emailBodyTemplate: z.string().nullish(),
 });
 
 const collectionInput = z.object({

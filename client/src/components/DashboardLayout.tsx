@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { ExternalLink, LayoutDashboard, LogOut, PanelLeft, Palette } from "lucide-react";
+import { ExternalLink, LayoutDashboard, LogOut, MessageSquare, PanelLeft, Palette } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
@@ -29,7 +29,8 @@ import { Button } from "./ui/button";
 
 const menuItems = [
   { icon: LayoutDashboard, label: "Content studio", path: "/admin" },
-  { icon: ExternalLink, label: "Public website", path: "/" },
+  { icon: MessageSquare, label: "Message Templates", path: "/admin/templates" },
+  { icon: ExternalLink, label: "Public website", path: "/", external: true },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -188,12 +189,23 @@ function DashboardLayoutContent({
           <SidebarContent className="gap-0 bg-[#090b0e]">
             <SidebarMenu className="px-2 py-3 gap-1">
               {menuItems.map(item => {
-                const isActive = location === item.path;
+                const isActive = item.path === "/admin"
+                  ? (location === "/admin" || location === "/admin/")
+                  : item.path === "/admin/templates"
+                  ? location.startsWith("/admin/templates")
+                  : location === item.path;
+
                 return (
                   <SidebarMenuItem key={item.path}>
                     <SidebarMenuButton
                       isActive={isActive}
-                      onClick={() => setLocation(item.path)}
+                      onClick={() => {
+                        if ((item as any).external) {
+                          window.open(item.path, "_blank");
+                        } else {
+                          setLocation(item.path);
+                        }
+                      }}
                       tooltip={item.label}
                       className={`h-11 px-3 rounded-xl transition-all font-semibold text-xs tracking-wider uppercase ${
                         isActive

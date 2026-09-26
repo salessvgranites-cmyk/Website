@@ -82,6 +82,9 @@ export const siteContent = pgTable("siteContent", {
   metric4Val: text("metric4Val").default("Direct Manufacturer"),
   metric4Label: text("metric4Label").default("From India"),
   footerCopy: text("footerCopy").default("All rights reserved."),
+  whatsappTemplate: text("whatsappTemplate").default("Hello SV Granites, I visited your website and would like to enquire about your granite products and export pricing."),
+  emailSubjectTemplate: text("emailSubjectTemplate").default("Enquiry regarding Granite Products & Supply - SV Granites"),
+  emailBodyTemplate: text("emailBodyTemplate").default("Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!"),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 
