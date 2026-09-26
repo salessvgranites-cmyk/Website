@@ -114,3 +114,6 @@ client/public/__manus__/version.json
 .project-config.json
 .neon
 node_modules/
+
+# env_template
+vercel_env_template.txt
