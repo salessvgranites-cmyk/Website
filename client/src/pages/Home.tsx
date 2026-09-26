@@ -372,8 +372,8 @@ export default function Home() {
                   <Award className="h-6 w-6 stroke-[1.5]" />
                 </div>
                 <div>
-                  <div className="text-sm sm:text-base font-bold text-white tracking-wide">25+</div>
-                  <div className="text-[11px] text-gray-400">Years of Experience</div>
+                  <div className="text-sm sm:text-base font-bold text-white tracking-wide">{content.metric1Val || "25+"}</div>
+                  <div className="text-[11px] text-gray-400">{content.metric1Label || "Years of Experience"}</div>
                 </div>
               </div>
 
@@ -383,8 +383,8 @@ export default function Home() {
                   <Globe className="h-6 w-6 stroke-[1.5]" />
                 </div>
                 <div>
-                  <div className="text-sm sm:text-base font-bold text-white tracking-wide">Export Ready</div>
-                  <div className="text-[11px] text-gray-400">International Packaging</div>
+                  <div className="text-sm sm:text-base font-bold text-white tracking-wide">{content.metric2Val || "Export Ready"}</div>
+                  <div className="text-[11px] text-gray-400">{content.metric2Label || "International Packaging"}</div>
                 </div>
               </div>
 
@@ -394,8 +394,8 @@ export default function Home() {
                   <ShieldCheck className="h-6 w-6 stroke-[1.5]" />
                 </div>
                 <div>
-                  <div className="text-sm sm:text-base font-bold text-white tracking-wide">Quality Focused</div>
-                  <div className="text-[11px] text-gray-400">Every Order Inspected</div>
+                  <div className="text-sm sm:text-base font-bold text-white tracking-wide">{content.metric3Val || "Quality Focused"}</div>
+                  <div className="text-[11px] text-gray-400">{content.metric3Label || "Every Order Inspected"}</div>
                 </div>
               </div>
 
@@ -405,8 +405,8 @@ export default function Home() {
                   <Factory className="h-6 w-6 stroke-[1.5]" />
                 </div>
                 <div>
-                  <div className="text-sm sm:text-base font-bold text-white tracking-wide">Direct Manufacturer</div>
-                  <div className="text-[11px] text-gray-400">From India</div>
+                  <div className="text-sm sm:text-base font-bold text-white tracking-wide">{content.metric4Val || "Direct Manufacturer"}</div>
+                  <div className="text-[11px] text-gray-400">{content.metric4Label || "From India"}</div>
                 </div>
               </div>
             </div>
@@ -423,13 +423,13 @@ export default function Home() {
                 {/* Left Column Text + Controls */}
                 <div className="pt-2">
                   <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#8c8273] mb-3">
-                    OUR PRODUCTS
+                    {content.productsEyebrow || "OUR PRODUCTS"}
                   </div>
-                  <h2 className="font-cinzel text-3xl sm:text-4xl font-semibold leading-tight text-[#151310] mb-5">
-                    Crafted for<br />Lasting Impressions
+                  <h2 className="font-cinzel text-3xl sm:text-4xl font-semibold leading-tight text-[#151310] mb-5 whitespace-pre-line">
+                    {content.productsTitle || "Crafted for\nLasting Impressions"}
                   </h2>
                   <p className="text-sm text-[#5a554d] leading-relaxed mb-8">
-                    From monumental structures to elegant accessories, our granite products are designed to meet the highest standards of quality and durability.
+                    {content.productsCopy || "From monumental structures to elegant accessories, our granite products are designed to meet the highest standards of quality and durability."}
                   </p>
 
                   {/* Left / Right Carousel Controls */}
@@ -515,13 +515,13 @@ export default function Home() {
                 {/* Left Column Text */}
                 <div className="pt-2">
                   <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#8c94a0] mb-3">
-                    STONE COLLECTION
+                    {content.collectionsEyebrow || "STONE COLLECTION"}
                   </div>
-                  <h2 className="font-cinzel text-3xl sm:text-4xl font-semibold leading-tight text-white mb-5">
-                    Nature's Beauty.<br />In Every Shade.
+                  <h2 className="font-cinzel text-3xl sm:text-4xl font-semibold leading-tight text-white mb-5 whitespace-pre-line">
+                    {content.collectionsTitle || "Nature's Beauty.\nIn Every Shade."}
                   </h2>
                   <p className="text-sm text-gray-400 leading-relaxed mb-6">
-                    Explore our premium range of granite stones, known for their unique patterns, colours and durability.
+                    {content.collectionsCopy || "Explore our premium range of granite stones, known for their unique patterns, colours and durability."}
                   </p>
 
                   {/* Left / Right Carousel Controls (Netflix / Prime Video style) */}
@@ -605,13 +605,13 @@ export default function Home() {
                 {/* Left Column Text + Controls */}
                 <div className="pt-2">
                   <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#8c8273] mb-3">
-                    SURFACE FINISHINGS
+                    {content.finishesEyebrow || "SURFACE FINISHINGS"}
                   </div>
-                  <h2 className="font-cinzel text-3xl sm:text-4xl font-semibold leading-tight text-[#151310] mb-5">
-                    The Art of<br />Every Surface.
+                  <h2 className="font-cinzel text-3xl sm:text-4xl font-semibold leading-tight text-[#151310] mb-5 whitespace-pre-line">
+                    {content.finishesTitle || "The Art of\nEvery Surface."}
                   </h2>
                   <p className="text-sm text-[#5a554d] leading-relaxed mb-8">
-                    From mirror-polished luxury to rugged flamed textures — each finish transforms stone into a distinct architectural statement.
+                    {content.finishesCopy || "From mirror-polished luxury to rugged flamed textures — each finish transforms stone into a distinct architectural statement."}
                   </p>
 
                   {/* Left / Right Carousel Controls */}
@@ -792,53 +792,53 @@ export default function Home() {
                 {/* Left Column: Why SV Granites — 3×2 compact grid, no dead space */}
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-gray-400 mb-2">
-                    WHY SV GRANITES
+                    {content.whyChooseEyebrow || "WHY SV GRANITES"}
                   </div>
-                  <h2 className="font-cinzel text-3xl font-semibold leading-tight text-white mb-8">
-                    The Right Partner<br />for Your Stone Needs.
+                  <h2 className="font-cinzel text-3xl font-semibold leading-tight text-white mb-8 whitespace-pre-line">
+                    {content.whyChooseTitle || "The Right Partner\nfor Your Stone Needs."}
                   </h2>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-6">
                     <div className="flex flex-col gap-1.5">
                       <div className="p-1.5 border border-white/10 rounded-lg text-[#c8a35f] w-fit">
                         <Factory className="h-4 w-4" />
                       </div>
-                      <h4 className="text-xs font-bold text-white">Direct Manufacturing</h4>
-                      <p className="text-[10px] text-gray-400 leading-snug">Work directly with the source.</p>
+                      <h4 className="text-xs font-bold text-white whitespace-pre-line">{content.whyFeature1Title || "Direct Manufacturing"}</h4>
+                      <p className="text-[10px] text-gray-400 leading-snug whitespace-pre-line">{content.whyFeature1Desc || "Work directly with the source."}</p>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <div className="p-1.5 border border-white/10 rounded-lg text-[#c8a35f] w-fit">
                         <ShieldCheck className="h-4 w-4" />
                       </div>
-                      <h4 className="text-xs font-bold text-white">Consistent Quality</h4>
-                      <p className="text-[10px] text-gray-400 leading-snug">Material and finish checked before dispatch.</p>
+                      <h4 className="text-xs font-bold text-white whitespace-pre-line">{content.whyFeature2Title || "Consistent Quality"}</h4>
+                      <p className="text-[10px] text-gray-400 leading-snug whitespace-pre-line">{content.whyFeature2Desc || "Material and finish checked before dispatch."}</p>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <div className="p-1.5 border border-white/10 rounded-lg text-[#c8a35f] w-fit">
                         <Layers className="h-4 w-4" />
                       </div>
-                      <h4 className="text-xs font-bold text-white">Custom Production</h4>
-                      <p className="text-[10px] text-gray-400 leading-snug">Tailored to your requirements.</p>
+                      <h4 className="text-xs font-bold text-white whitespace-pre-line">{content.whyFeature3Title || "Custom Production"}</h4>
+                      <p className="text-[10px] text-gray-400 leading-snug whitespace-pre-line">{content.whyFeature3Desc || "Tailored to your requirements."}</p>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <div className="p-1.5 border border-white/10 rounded-lg text-[#c8a35f] w-fit">
                         <Package className="h-4 w-4" />
                       </div>
-                      <h4 className="text-xs font-bold text-white">Export Packaging</h4>
-                      <p className="text-[10px] text-gray-400 leading-snug">Safe for international transport.</p>
+                      <h4 className="text-xs font-bold text-white whitespace-pre-line">{content.whyFeature4Title || "Export Packaging"}</h4>
+                      <p className="text-[10px] text-gray-400 leading-snug whitespace-pre-line">{content.whyFeature4Desc || "Safe for international transport."}</p>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <div className="p-1.5 border border-white/10 rounded-lg text-[#c8a35f] w-fit">
                         <MessageSquare className="h-4 w-4" />
                       </div>
-                      <h4 className="text-xs font-bold text-white">Responsive Communication</h4>
-                      <p className="text-[10px] text-gray-400 leading-snug">Clear coordination from enquiry to shipment.</p>
+                      <h4 className="text-xs font-bold text-white whitespace-pre-line">{content.whyFeature5Title || "Responsive Communication"}</h4>
+                      <p className="text-[10px] text-gray-400 leading-snug whitespace-pre-line">{content.whyFeature5Desc || "Clear coordination from enquiry to shipment."}</p>
                     </div>
                     <div className="flex flex-col gap-1.5">
                       <div className="p-1.5 border border-white/10 rounded-lg text-[#c8a35f] w-fit">
                         <Award className="h-4 w-4" />
                       </div>
-                      <h4 className="text-xs font-bold text-white">Long-Term Partnerships</h4>
-                      <p className="text-[10px] text-gray-400 leading-snug">Built on trust and reliability.</p>
+                      <h4 className="text-xs font-bold text-white whitespace-pre-line">{content.whyFeature6Title || "Long-Term Partnerships"}</h4>
+                      <p className="text-[10px] text-gray-400 leading-snug whitespace-pre-line">{content.whyFeature6Desc || "Built on trust and reliability."}</p>
                     </div>
                   </div>
                 </div>
@@ -846,13 +846,13 @@ export default function Home() {
                 {/* Right Column: Global Reach — animated world map */}
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-gray-400 mb-2">
-                    GLOBAL REACH
+                    {content.globalReachEyebrow || "GLOBAL REACH"}
                   </div>
-                  <h2 className="font-cinzel text-3xl font-semibold leading-tight text-white mb-1">
-                    FROM INDIA,<br />MADE FOR THE WORLD.
+                  <h2 className="font-cinzel text-3xl font-semibold leading-tight text-white mb-1 whitespace-pre-line">
+                    {content.globalReachTitle || "FROM INDIA,\nMADE FOR THE WORLD."}
                   </h2>
                   <p className="text-[11px] text-gray-400 mb-5">
-                    Manufactured in South India · Prepared for international buyers.
+                    {content.globalReachCopy || "Manufactured in South India · Prepared for international buyers."}
                   </p>
 
                   {/* ── World Map ── */}
@@ -993,10 +993,10 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-10">
                 <div>
                   <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#8c8273] mb-3">
-                    GALLERY
+                    {content.galleryEyebrow || "GALLERY"}
                   </div>
-                  <h2 className="font-cinzel text-3xl sm:text-4xl font-semibold leading-tight text-[#151310]">
-                    Stone in Every<br />Frame.
+                  <h2 className="font-cinzel text-3xl sm:text-4xl font-semibold leading-tight text-[#151310] whitespace-pre-line">
+                    {content.galleryTitle || "Stone in Every\nFrame."}
                   </h2>
                 </div>
 
@@ -1159,39 +1159,88 @@ export default function Home() {
 
                     {/* Contact Information */}
                     <div className="mt-8 space-y-6">
-                      <a href={`tel:${content.phone || "9790613468"}`} className="flex items-start gap-4 hover:opacity-80 transition-opacity group">
-                        <Phone className="w-5 h-5 text-[#c8a35f] shrink-0" />
-                        <div>
-                          <div className="text-[15px] font-medium text-[#151310]">{content.phone || "9790613468"}</div>
+                      {/* Phones */}
+                      <div className="flex items-start gap-4">
+                        <Phone className="w-5 h-5 text-[#c8a35f] shrink-0 mt-0.5" />
+                        <div className="space-y-1.5">
+                          {((content.phone || "9790613468")
+                            .split(/[\n,]+/)
+                            .map((s: string) => s.trim())
+                            .filter(Boolean)
+                          ).map((phone: string, i: number) => (
+                            <a
+                              key={i}
+                              href={`tel:${phone.replace(/[^\d+]/g, "")}`}
+                              className="block text-[15px] font-medium text-[#151310] hover:text-[#c8a35f] transition-colors"
+                            >
+                              {phone}
+                            </a>
+                          ))}
                         </div>
-                      </a>
-                      <a href={`mailto:${content.email || "sales.svgranites@gmail.com"}`} className="flex items-start gap-4 hover:opacity-80 transition-opacity group">
-                        <Mail className="w-5 h-5 text-[#c8a35f] shrink-0" />
-                        <div>
-                          <div className="text-[15px] font-medium text-[#151310]">{content.email || "sales.svgranites@gmail.com"}</div>
+                      </div>
+
+                      {/* Emails */}
+                      <div className="flex items-start gap-4">
+                        <Mail className="w-5 h-5 text-[#c8a35f] shrink-0 mt-0.5" />
+                        <div className="space-y-1.5">
+                          {((content.email || "sales.svgranites@gmail.com")
+                            .split(/[\n,]+/)
+                            .map((s: string) => s.trim())
+                            .filter(Boolean)
+                          ).map((email: string, i: number) => (
+                            <a
+                              key={i}
+                              href={`mailto:${email}`}
+                              className="block text-[15px] font-medium text-[#151310] hover:text-[#c8a35f] transition-colors"
+                            >
+                              {email}
+                            </a>
+                          ))}
                         </div>
-                      </a>
+                      </div>
+
+                      {/* Address & Google Maps */}
                       <a
                         href={content.mapsUrl?.trim() ? content.mapsUrl.trim() : `https://maps.google.com/?q=${encodeURIComponent(content.address || "NO.951/3,Poovallikuppam Village Kadampathur Block, Post, Mappedu, Chennai, Tamil Nadu 602105")}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-start gap-4 hover:opacity-80 transition-opacity group"
                       >
-                        <MapPin className="w-5 h-5 text-[#c8a35f] shrink-0" />
+                        <MapPin className="w-5 h-5 text-[#c8a35f] shrink-0 mt-0.5" />
                         <div>
                           <div className="text-[15px] font-medium text-[#151310] leading-relaxed max-w-sm">
                             {content.address || "NO.951/3,Poovallikuppam Village Kadampathur Block, Post, Mappedu, Chennai, Tamil Nadu 602105"}
                           </div>
                         </div>
                       </a>
-                      <a href={`https://wa.me/91${(content.whatsapp || "9790613468").replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 hover:opacity-80 transition-opacity group">
-                        <svg className="w-5 h-5 text-[#25D366] shrink-0 fill-current" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+
+                      {/* WhatsApp */}
+                      <div className="flex items-start gap-4">
+                        <svg className="w-5 h-5 text-[#25D366] shrink-0 fill-current mt-0.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                         </svg>
-                        <div>
-                          <div className="text-[15px] font-medium text-[#151310]">{content.whatsapp || "9790613468"}</div>
+                        <div className="space-y-1.5">
+                          {((content.whatsapp || "9790613468")
+                            .split(/[\n,]+/)
+                            .map((s: string) => s.trim())
+                            .filter(Boolean)
+                          ).map((wa: string, i: number) => {
+                            const digits = wa.replace(/\D/g, "");
+                            const cleanNumber = digits.startsWith("91") && digits.length > 10 ? digits : `91${digits}`;
+                            return (
+                              <a
+                                key={i}
+                                href={`https://wa.me/${cleanNumber}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="block text-[15px] font-medium text-[#151310] hover:text-[#25D366] transition-colors"
+                              >
+                                {wa}
+                              </a>
+                            );
+                          })}
                         </div>
-                      </a>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1200,11 +1249,11 @@ export default function Home() {
                 {isSectionVisible("contact") && (
                   <div id="contact" className="bg-[#12151a] text-white p-7 sm:p-9 rounded-xl border border-white/10 shadow-2xl">
                     <div className="mb-6">
-                      <h3 className="font-cinzel text-lg sm:text-xl font-bold uppercase tracking-[0.14em] text-white mb-2">
-                        LOOKING FOR THE RIGHT STONE?
+                      <h3 className="font-cinzel text-lg sm:text-xl font-bold uppercase tracking-[0.14em] text-white mb-2 whitespace-pre-line">
+                        {content.enquiryTitle || "LOOKING FOR THE RIGHT STONE?"}
                       </h3>
                       <p className="text-[11px] text-gray-400 leading-relaxed">
-                        Tell us what you're looking for. We'll help you find the right material, finish and specification.
+                        {content.enquiryCopy || "Tell us what you're looking for. We'll help you find the right material, finish and specification."}
                       </p>
                     </div>
 
@@ -1313,15 +1362,14 @@ export default function Home() {
 
           <div className="relative z-10 mx-auto w-full max-w-[1440px] px-6 lg:px-12 py-12">
             <div className="max-w-xl">
-              <h3 className="font-cinzel text-xl sm:text-2xl font-bold uppercase tracking-[0.12em] text-white">
-                STONE THAT LASTS.<br />
-                PARTNERSHIPS THAT GROW.
+              <h3 className="font-cinzel text-xl sm:text-2xl font-bold uppercase tracking-[0.12em] text-white whitespace-pre-line">
+                {content.bannerTitle || "STONE THAT LASTS.\nPARTNERSHIPS THAT GROW."}
               </h3>
               <div className="mt-2 text-xs font-medium uppercase tracking-[0.2em] text-[#c8a35f]">
                 {content.brandName ? content.brandName.toUpperCase() : "SV GRANITES"}
               </div>
               <div className="text-[10px] text-gray-400 tracking-wider">
-                South India · India
+                {content.bannerSubtitle || "South India · India"}
               </div>
               <div className="mt-5">
                 <button 
@@ -1375,7 +1423,7 @@ export default function Home() {
                 </a>
               </div>
               <span className="text-[10px] text-gray-500 tracking-wider">
-                © {new Date().getFullYear()} {content.brandName || "SV Granites"}. All rights reserved.
+                © {new Date().getFullYear()} {content.brandName || "SV Granites"}. {content.footerCopy || "All rights reserved."}
               </span>
             </div>
           </div>

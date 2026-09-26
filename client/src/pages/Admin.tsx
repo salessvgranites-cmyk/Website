@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   AlertTriangle, ArrowDown, ArrowUp, ArrowUpRight, Check, ChevronLeft, ChevronRight, ExternalLink,
   Eye, EyeOff, Grid3X3, Image as ImageIcon, Inbox, LayoutDashboard, Loader2,
-  LogOut, Palette, Plus, Save, Settings2, Sparkles, Star, Trash2, Upload, X, Layers
+  LogOut, Palette, Plus, Save, Sparkles, Star, Trash2, Upload, X, Layers
 } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -289,6 +289,47 @@ const FALLBACK_CONTENT = {
   facilityCopy: "A state-of-the-art facility with advanced machinery and a skilled team, ensuring precision at every stage.",
   bannerImage: "/images/monument-headstone.jpg",
   mapsUrl: "",
+  productsEyebrow: "OUR PRODUCTS",
+  productsTitle: "Crafted for Lasting Impressions",
+  productsCopy: "From monumental structures to elegant accessories, our granite products are designed to meet the highest standards of quality and durability.",
+  collectionsEyebrow: "STONE COLLECTION",
+  collectionsTitle: "Nature's Beauty. In Every Shade.",
+  collectionsCopy: "Explore our premium range of granite stones, known for their unique patterns, colours and durability.",
+  finishesEyebrow: "SURFACE FINISHINGS",
+  finishesTitle: "The Art of Every Surface.",
+  finishesCopy: "From mirror-polished luxury to rugged flamed textures — each finish transforms stone into a distinct architectural statement.",
+  whyChooseEyebrow: "WHY SV GRANITES",
+  whyChooseTitle: "The Right Partner for Your Stone Needs.",
+  whyFeature1Title: "Direct Manufacturing",
+  whyFeature1Desc: "Work directly with the source.",
+  whyFeature2Title: "Consistent Quality",
+  whyFeature2Desc: "Material and finish checked before dispatch.",
+  whyFeature3Title: "Custom Production",
+  whyFeature3Desc: "Tailored to your requirements.",
+  whyFeature4Title: "Export Packaging",
+  whyFeature4Desc: "Safe for international transport.",
+  whyFeature5Title: "Responsive Communication",
+  whyFeature5Desc: "Clear coordination from enquiry to shipment.",
+  whyFeature6Title: "Long-Term Partnerships",
+  whyFeature6Desc: "Built on trust and reliability.",
+  globalReachEyebrow: "GLOBAL REACH",
+  globalReachTitle: "FROM INDIA, MADE FOR THE WORLD.",
+  globalReachCopy: "Manufactured in South India · Prepared for international buyers.",
+  galleryEyebrow: "GALLERY",
+  galleryTitle: "Stone in Every Frame.",
+  enquiryTitle: "LOOKING FOR THE RIGHT STONE?",
+  enquiryCopy: "Tell us what you're looking for. We'll help you find the right material, finish and specification.",
+  bannerTitle: "STONE THAT LASTS. PARTNERSHIPS THAT GROW.",
+  bannerSubtitle: "South India · India",
+  metric1Val: "25+",
+  metric1Label: "Years of Experience",
+  metric2Val: "Export Ready",
+  metric2Label: "International Packaging",
+  metric3Val: "Quality Focused",
+  metric3Label: "Every Order Inspected",
+  metric4Val: "Direct Manufacturer",
+  metric4Label: "From India",
+  footerCopy: "All rights reserved.",
 };
 
 type TabId = typeof tabs[number]["id"];
@@ -356,7 +397,6 @@ export default function Admin() {
           </div>
           <div className="flex items-center gap-3">
             <a href="/" target="_blank" rel="noreferrer" className="admin-outline"><ExternalLink className="h-3.5 w-3.5" /> View site</a>
-            <Button onClick={() => setActiveTab("brand")} className="admin-gold"><Settings2 className="h-3.5 w-3.5" /> Edit site</Button>
           </div>
         </header>
 
@@ -368,7 +408,18 @@ export default function Admin() {
           ); })}
         </div>
 
-        {activeTab === "overview" && <Overview content={content} collections={collections} gallery={gallery} products={products} enquiries={enquiries} setActiveTab={setActiveTab} />}
+        {activeTab === "overview" && (
+          <Overview
+            content={content}
+            collections={collections}
+            gallery={gallery}
+            products={products}
+            finishes={finishes}
+            sections={sections}
+            enquiries={enquiries}
+            setActiveTab={setActiveTab}
+          />
+        )}
 
         {activeTab === "brand" && (
           <BrandTab content={content} setField={setField} saving={saveContent.isPending}
@@ -449,7 +500,7 @@ export default function Admin() {
 }
 
 // ─── Overview ─────────────────────────────────────────────────────────────────
-function Overview({ content, collections, gallery, products, enquiries, setActiveTab }: any) {
+function Overview({ content, collections, gallery, products, finishes, sections, enquiries, setActiveTab }: any) {
   return (
     <section className="admin-section">
       <div className="overview-hero">
@@ -463,16 +514,12 @@ function Overview({ content, collections, gallery, products, enquiries, setActiv
         <div className="overview-mark"><span>SV</span></div>
       </div>
       <div className="overview-grid">
-        <Stat label="Products" value={products.length} note="In catalogue" icon={Layers} />
-        <Stat label="Active collections" value={collections.length} note="Material stories live" icon={Sparkles} />
-        <Stat label="Project features" value={gallery.length} note="Spaces on display" icon={ImageIcon} />
-        <Stat label="New enquiries" value={enquiries.filter((e: any) => e.status === "new").length} note="Ready for a reply" icon={Inbox} />
-      </div>
-      <div className="quick-actions">
-        <button onClick={() => setActiveTab("brand")}><Palette /><span><strong>Update brand details</strong><small>Voice, contact, imagery</small></span><ChevronRight /></button>
-        <button onClick={() => setActiveTab("products")}><Layers /><span><strong>Manage products</strong><small>Add or remove catalogue items</small></span><ChevronRight /></button>
-        <button onClick={() => setActiveTab("collections")}><Sparkles /><span><strong>Refresh a collection</strong><small>Make the library current</small></span><ChevronRight /></button>
-        <button onClick={() => setActiveTab("enquiries")}><Inbox /><span><strong>Review enquiries</strong><small>Keep the conversation moving</small></span><ChevronRight /></button>
+        <Stat label="Products" value={products.length} note="In catalogue" icon={Layers} onClick={() => setActiveTab("products")} />
+        <Stat label="Collections" value={collections.length} note="Stone varieties" icon={Sparkles} onClick={() => setActiveTab("collections")} />
+        <Stat label="Finishes" value={finishes.length} note="Surface textures" icon={Star} onClick={() => setActiveTab("finishes")} />
+        <Stat label="Gallery" value={gallery.length} note="Photos on display" icon={ImageIcon} onClick={() => setActiveTab("gallery")} />
+        <Stat label="Sections" value={sections.length} note="Website sections" icon={Grid3X3} onClick={() => setActiveTab("sections")} />
+        <Stat label="Enquiries" value={enquiries.length} note={`${enquiries.filter((e: any) => e.status === "new").length} new`} icon={Inbox} onClick={() => setActiveTab("enquiries")} />
       </div>
     </section>
   );
@@ -541,13 +588,41 @@ function BrandTab({ content, setField, saving, isDirty, onSave, onImageUploaded 
 
       {/* Text & Contact Information */}
       <div className="border-t border-white/10 pt-8">
-        <div className="admin-eyebrow text-[#d4af37]">Content & Copy</div>
+        <div className="admin-eyebrow text-[#d4af37]">Brand & Contact</div>
         <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white mb-5">Website Text & Contact Details</h3>
-        <div className="admin-form-grid">
+        <div className="mb-5">
           <Field label="Brand name" value={content.brandName} onChange={(v: string) => setField("brandName", v)} />
-          <Field label="Phone number" value={content.phone} onChange={(v: string) => setField("phone", v)} />
-          <Field label="WhatsApp number" value={content.whatsapp} onChange={(v: string) => setField("whatsapp", v)} />
-          <Field label="Email address" value={content.email} onChange={(v: string) => setField("email", v)} />
+        </div>
+
+        {/* Multi-value Contact Information */}
+        <div className="grid gap-5 mb-5 lg:grid-cols-3">
+          <MultiStringField
+            label="Phone Numbers"
+            value={content.phone}
+            onChange={(v: string) => setField("phone", v)}
+            placeholder="e.g. +91 97906 13468"
+            type="tel"
+            itemLabel="Phone"
+          />
+          <MultiStringField
+            label="WhatsApp Numbers"
+            value={content.whatsapp}
+            onChange={(v: string) => setField("whatsapp", v)}
+            placeholder="e.g. +91 97906 13468"
+            type="tel"
+            itemLabel="WhatsApp"
+          />
+          <MultiStringField
+            label="Email Addresses"
+            value={content.email}
+            onChange={(v: string) => setField("email", v)}
+            placeholder="e.g. sales.svgranites@gmail.com"
+            type="email"
+            itemLabel="Email"
+          />
+        </div>
+
+        <div className="admin-form-grid">
           <label className="admin-field full">
             <span>Factory & office address</span>
             <Textarea value={content.address ?? ""} onChange={e => setField("address", e.target.value)} />
@@ -563,6 +638,14 @@ function BrandTab({ content, setField, saving, isDirty, onSave, onImageUploaded 
               If provided, clicking the address on the website opens this exact pin/map link. If left empty, it opens the address text on Google Maps automatically.
             </span>
           </label>
+        </div>
+      </div>
+
+      {/* Hero Section & Key Metrics */}
+      <div className="border-t border-white/10 pt-8">
+        <div className="admin-eyebrow text-[#d4af37]">Section · Hero & Metrics</div>
+        <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white mb-5">Hero Banner & Key Metrics Bar</h3>
+        <div className="admin-form-grid">
           <label className="admin-field full">
             <span>Hero section eyebrow</span>
             <Input value={content.heroEyebrow ?? ""} onChange={e => setField("heroEyebrow", e.target.value)} />
@@ -575,6 +658,102 @@ function BrandTab({ content, setField, saving, isDirty, onSave, onImageUploaded 
             <span>Hero descriptive copy</span>
             <Textarea value={content.heroCopy ?? ""} onChange={e => setField("heroCopy", e.target.value)} />
           </label>
+        </div>
+
+        {/* 4 Key Metrics Bar */}
+        <div className="mt-6 border-t border-white/10 pt-5">
+          <h4 className="font-cinzel text-base text-white mb-1">Key Metrics Bar (4 Highlights)</h4>
+          <p className="text-xs text-stone-400 mb-4">Values and labels displayed right below the hero banner.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="bg-[#13161b] border border-white/10 p-3.5 rounded-xl space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#d4af37]">Highlight 1</span>
+              <Field label="Value" value={content.metric1Val} onChange={(v: string) => setField("metric1Val", v)} />
+              <Field label="Label" value={content.metric1Label} onChange={(v: string) => setField("metric1Label", v)} />
+            </div>
+            <div className="bg-[#13161b] border border-white/10 p-3.5 rounded-xl space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#d4af37]">Highlight 2</span>
+              <Field label="Value" value={content.metric2Val} onChange={(v: string) => setField("metric2Val", v)} />
+              <Field label="Label" value={content.metric2Label} onChange={(v: string) => setField("metric2Label", v)} />
+            </div>
+            <div className="bg-[#13161b] border border-white/10 p-3.5 rounded-xl space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#d4af37]">Highlight 3</span>
+              <Field label="Value" value={content.metric3Val} onChange={(v: string) => setField("metric3Val", v)} />
+              <Field label="Label" value={content.metric3Label} onChange={(v: string) => setField("metric3Label", v)} />
+            </div>
+            <div className="bg-[#13161b] border border-white/10 p-3.5 rounded-xl space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#d4af37]">Highlight 4</span>
+              <Field label="Value" value={content.metric4Val} onChange={(v: string) => setField("metric4Val", v)} />
+              <Field label="Label" value={content.metric4Label} onChange={(v: string) => setField("metric4Label", v)} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Our Products Section Text */}
+      <div className="border-t border-white/10 pt-8">
+        <div className="admin-eyebrow text-[#d4af37]">Section · Products</div>
+        <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white mb-5">Our Products Section Header & Copy</h3>
+        <div className="admin-form-grid">
+          <label className="admin-field full">
+            <span>Products section eyebrow</span>
+            <Input value={content.productsEyebrow ?? ""} onChange={e => setField("productsEyebrow", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Products section title</span>
+            <Input value={content.productsTitle ?? ""} onChange={e => setField("productsTitle", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Products section copy</span>
+            <Textarea value={content.productsCopy ?? ""} onChange={e => setField("productsCopy", e.target.value)} />
+          </label>
+        </div>
+      </div>
+
+      {/* Stone Collections Section Text */}
+      <div className="border-t border-white/10 pt-8">
+        <div className="admin-eyebrow text-[#d4af37]">Section · Collections</div>
+        <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white mb-5">Stone Collections Section Header & Copy</h3>
+        <div className="admin-form-grid">
+          <label className="admin-field full">
+            <span>Collections section eyebrow</span>
+            <Input value={content.collectionsEyebrow ?? ""} onChange={e => setField("collectionsEyebrow", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Collections section title</span>
+            <Input value={content.collectionsTitle ?? ""} onChange={e => setField("collectionsTitle", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Collections section copy</span>
+            <Textarea value={content.collectionsCopy ?? ""} onChange={e => setField("collectionsCopy", e.target.value)} />
+          </label>
+        </div>
+      </div>
+
+      {/* Surface Finishes Section Text */}
+      <div className="border-t border-white/10 pt-8">
+        <div className="admin-eyebrow text-[#d4af37]">Section · Finishes</div>
+        <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white mb-5">Surface Finishes Section Header & Copy</h3>
+        <div className="admin-form-grid">
+          <label className="admin-field full">
+            <span>Finishes section eyebrow</span>
+            <Input value={content.finishesEyebrow ?? ""} onChange={e => setField("finishesEyebrow", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Finishes section title</span>
+            <Input value={content.finishesTitle ?? ""} onChange={e => setField("finishesTitle", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Finishes section copy</span>
+            <Textarea value={content.finishesCopy ?? ""} onChange={e => setField("finishesCopy", e.target.value)} />
+          </label>
+        </div>
+      </div>
+
+      {/* Our Craft Section Text */}
+      <div className="border-t border-white/10 pt-8">
+        <div className="admin-eyebrow text-[#d4af37]">Section · Our Craft</div>
+        <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white mb-5">Our Craft Section Title & Description</h3>
+        <div className="admin-form-grid">
           <label className="admin-field full">
             <span>Our Craft section title</span>
             <Input value={content.aboutTitle ?? ""} onChange={e => setField("aboutTitle", e.target.value)} />
@@ -582,6 +761,127 @@ function BrandTab({ content, setField, saving, isDirty, onSave, onImageUploaded 
           <label className="admin-field full">
             <span>Our Craft descriptive copy</span>
             <Textarea value={content.aboutCopy ?? ""} onChange={e => setField("aboutCopy", e.target.value)} />
+          </label>
+        </div>
+      </div>
+
+      {/* Why SV Granites & Global Reach */}
+      <div className="border-t border-white/10 pt-8">
+        <div className="admin-eyebrow text-[#d4af37]">Section · About & Global Reach</div>
+        <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white mb-5">Why SV Granites & Global Reach Section Texts</h3>
+        <div className="admin-form-grid">
+          <label className="admin-field full">
+            <span>Why SV Granites section eyebrow</span>
+            <Input value={content.whyChooseEyebrow ?? ""} onChange={e => setField("whyChooseEyebrow", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Why SV Granites main title</span>
+            <Input value={content.whyChooseTitle ?? ""} onChange={e => setField("whyChooseTitle", e.target.value)} />
+          </label>
+        </div>
+
+        {/* Why SV Granites — 6 Core Value Points */}
+        <div className="mt-6 border-t border-white/10 pt-5">
+          <h4 className="font-cinzel text-base text-white mb-1">Why SV Granites — 6 Core Value Points</h4>
+          <p className="text-xs text-stone-400 mb-4">Edit the title and description for each of the 6 feature highlights under "Why SV Granites".</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div className="bg-[#13161b] border border-white/10 p-3.5 rounded-xl space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#d4af37]">Point 1 · Manufacturing</span>
+              <Field label="Title" value={content.whyFeature1Title} onChange={(v: string) => setField("whyFeature1Title", v)} />
+              <Field label="Description" value={content.whyFeature1Desc} onChange={(v: string) => setField("whyFeature1Desc", v)} />
+            </div>
+            <div className="bg-[#13161b] border border-white/10 p-3.5 rounded-xl space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#d4af37]">Point 2 · Quality</span>
+              <Field label="Title" value={content.whyFeature2Title} onChange={(v: string) => setField("whyFeature2Title", v)} />
+              <Field label="Description" value={content.whyFeature2Desc} onChange={(v: string) => setField("whyFeature2Desc", v)} />
+            </div>
+            <div className="bg-[#13161b] border border-white/10 p-3.5 rounded-xl space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#d4af37]">Point 3 · Custom Production</span>
+              <Field label="Title" value={content.whyFeature3Title} onChange={(v: string) => setField("whyFeature3Title", v)} />
+              <Field label="Description" value={content.whyFeature3Desc} onChange={(v: string) => setField("whyFeature3Desc", v)} />
+            </div>
+            <div className="bg-[#13161b] border border-white/10 p-3.5 rounded-xl space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#d4af37]">Point 4 · Export Packaging</span>
+              <Field label="Title" value={content.whyFeature4Title} onChange={(v: string) => setField("whyFeature4Title", v)} />
+              <Field label="Description" value={content.whyFeature4Desc} onChange={(v: string) => setField("whyFeature4Desc", v)} />
+            </div>
+            <div className="bg-[#13161b] border border-white/10 p-3.5 rounded-xl space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#d4af37]">Point 5 · Responsive Communication</span>
+              <Field label="Title" value={content.whyFeature5Title} onChange={(v: string) => setField("whyFeature5Title", v)} />
+              <Field label="Description" value={content.whyFeature5Desc} onChange={(v: string) => setField("whyFeature5Desc", v)} />
+            </div>
+            <div className="bg-[#13161b] border border-white/10 p-3.5 rounded-xl space-y-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#d4af37]">Point 6 · Long-Term Partnerships</span>
+              <Field label="Title" value={content.whyFeature6Title} onChange={(v: string) => setField("whyFeature6Title", v)} />
+              <Field label="Description" value={content.whyFeature6Desc} onChange={(v: string) => setField("whyFeature6Desc", v)} />
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-form-grid">
+          <label className="admin-field full">
+            <span>Global Reach section eyebrow</span>
+            <Input value={content.globalReachEyebrow ?? ""} onChange={e => setField("globalReachEyebrow", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Global Reach main title</span>
+            <Input value={content.globalReachTitle ?? ""} onChange={e => setField("globalReachTitle", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Global Reach descriptive copy</span>
+            <Textarea value={content.globalReachCopy ?? ""} onChange={e => setField("globalReachCopy", e.target.value)} />
+          </label>
+        </div>
+      </div>
+
+      {/* Photo Gallery Section Text */}
+      <div className="border-t border-white/10 pt-8">
+        <div className="admin-eyebrow text-[#d4af37]">Section · Gallery</div>
+        <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white mb-5">Photo Gallery Section Header</h3>
+        <div className="admin-form-grid">
+          <label className="admin-field full">
+            <span>Gallery section eyebrow</span>
+            <Input value={content.galleryEyebrow ?? ""} onChange={e => setField("galleryEyebrow", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Gallery section title</span>
+            <Input value={content.galleryTitle ?? ""} onChange={e => setField("galleryTitle", e.target.value)} />
+          </label>
+        </div>
+      </div>
+
+      {/* Inquiry Form Section Text */}
+      <div className="border-t border-white/10 pt-8">
+        <div className="admin-eyebrow text-[#d4af37]">Section · Inquiry Form</div>
+        <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white mb-5">Looking For Stone? Inquiry Form Card Text</h3>
+        <div className="admin-form-grid">
+          <label className="admin-field full">
+            <span>Inquiry card main title</span>
+            <Input value={content.enquiryTitle ?? ""} onChange={e => setField("enquiryTitle", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Inquiry card descriptive copy</span>
+            <Textarea value={content.enquiryCopy ?? ""} onChange={e => setField("enquiryCopy", e.target.value)} />
+          </label>
+        </div>
+      </div>
+
+      {/* Pre-Footer Banner & Footer Text */}
+      <div className="border-t border-white/10 pt-8">
+        <div className="admin-eyebrow text-[#d4af37]">Section · Bottom Banner & Footer</div>
+        <h3 className="mt-1 font-cinzel admin-card-title text-2xl text-white mb-5">Pre-Footer Banner & Footer Copy</h3>
+        <div className="admin-form-grid">
+          <label className="admin-field full">
+            <span>Bottom banner main headline</span>
+            <Input value={content.bannerTitle ?? ""} onChange={e => setField("bannerTitle", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Bottom banner location / subtitle</span>
+            <Input value={content.bannerSubtitle ?? ""} onChange={e => setField("bannerSubtitle", e.target.value)} />
+          </label>
+          <label className="admin-field full">
+            <span>Footer copyright notice & rights text</span>
+            <Input value={content.footerCopy ?? ""} onChange={e => setField("footerCopy", e.target.value)} />
           </label>
         </div>
       </div>
@@ -1119,13 +1419,20 @@ function EnquiriesTab({ enquiries, isLoading, onRefresh }: any) {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function Stat({ label, value, note, icon: Icon }: any) {
+function Stat({ label, value, note, icon: Icon, onClick }: any) {
   return (
-    <div className="stat-card">
-      <Icon className="h-5 w-5 text-[#d4af37]" />
-      <div className="mt-7 font-cinzel text-5xl font-bold text-white">{value}</div>
-      <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-400">{label}</div>
-      <div className="mt-5 text-xs text-stone-500">{note}</div>
+    <div
+      onClick={onClick}
+      className="stat-card cursor-pointer group"
+      title={`Go to ${label} tab`}
+    >
+      <div className="flex items-center justify-between">
+        <Icon className="h-5 w-5 text-[#d4af37] transition-transform duration-300 group-hover:scale-110" />
+        <ChevronRight className="h-3.5 w-3.5 text-white/20 transition-all duration-300 group-hover:text-[#d4af37] group-hover:translate-x-0.5" />
+      </div>
+      <div className="mt-5 font-cinzel text-4xl sm:text-5xl font-bold text-white group-hover:text-[#d4af37] transition-colors">{value}</div>
+      <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-300">{label}</div>
+      <div className="mt-3 text-xs text-stone-500">{note}</div>
     </div>
   );
 }
@@ -1148,5 +1455,153 @@ function Field({ label, value, onChange }: any) {
       <span>{label}</span>
       <Input value={value ?? ""} onChange={e => onChange(e.target.value)} />
     </label>
+  );
+}
+
+type MultiItem = {
+  id: string;
+  val: string;
+};
+
+function parseToMultiItems(val: string | null | undefined): MultiItem[] {
+  if (!val) return [{ id: "m-0", val: "" }];
+  const parts = val
+    .split(/[\n,]+/)
+    .map(s => s.trim())
+    .filter(Boolean);
+  if (parts.length === 0) return [{ id: "m-0", val: "" }];
+  return parts.map((str, idx) => ({
+    id: `m-${idx}-${str.slice(0, 8)}`,
+    val: str,
+  }));
+}
+
+function MultiStringField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type = "text",
+  itemLabel = "item",
+}: {
+  label: string;
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  type?: string;
+  itemLabel?: string;
+}) {
+  const [items, setItems] = useState<MultiItem[]>(() => parseToMultiItems(value));
+  const lastSyncValueRef = useRef<string>(value ?? "");
+
+  // When value changes from parent (e.g. initial server load or reset)
+  useEffect(() => {
+    const incoming = value ?? "";
+    if (incoming !== lastSyncValueRef.current) {
+      lastSyncValueRef.current = incoming;
+      setItems(parseToMultiItems(incoming));
+    }
+  }, [value]);
+
+  const updateItem = (id: string, newVal: string) => {
+    // If user pasted a comma-separated or newline-separated string, expand into multiple rows
+    if (newVal.includes(",") || newVal.includes("\n")) {
+      const parts = newVal.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+      if (parts.length > 1) {
+        setItems(prev => {
+          const idx = prev.findIndex(item => item.id === id);
+          if (idx === -1) return prev;
+          const expanded: MultiItem[] = parts.map((p, i) => ({
+            id: `m-paste-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`,
+            val: p,
+          }));
+          const next = [...prev.slice(0, idx), ...expanded, ...prev.slice(idx + 1)];
+          const joined = next.map(i => i.val.trim()).filter(Boolean).join(", ");
+          lastSyncValueRef.current = joined;
+          onChange(joined);
+          return next;
+        });
+        return;
+      }
+    }
+
+    setItems(prev => {
+      const updated = prev.map(item => item.id === id ? { ...item, val: newVal } : item);
+      const joined = updated
+        .map(i => i.val.trim())
+        .filter(Boolean)
+        .join(", ");
+      lastSyncValueRef.current = joined;
+      onChange(joined);
+      return updated;
+    });
+  };
+
+  const addItem = () => {
+    const newItem: MultiItem = {
+      id: `m-new-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      val: "",
+    };
+    setItems(prev => [...prev, newItem]);
+  };
+
+  const removeItem = (id: string) => {
+    setItems(prev => {
+      const updated = prev.filter(item => item.id !== id);
+      const finalItems = updated.length > 0 ? updated : [{ id: `m-fallback-${Date.now()}`, val: "" }];
+      const joined = finalItems
+        .map(i => i.val.trim())
+        .filter(Boolean)
+        .join(", ");
+      lastSyncValueRef.current = joined;
+      onChange(joined);
+      return finalItems;
+    });
+  };
+
+  return (
+    <div className="rounded-2xl bg-[#13161b] border border-white/10 p-4 flex flex-col justify-between">
+      <div>
+        <div className="flex items-center justify-between gap-2 mb-3">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-stone-300">
+            {label}
+          </span>
+          <button
+            type="button"
+            onClick={addItem}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#d4af37] hover:text-[#dec083] bg-[#d4af37]/10 hover:bg-[#d4af37]/20 border border-[#d4af37]/30 px-3 py-1 rounded-full transition-colors cursor-pointer"
+          >
+            <Plus className="h-3.5 w-3.5" /> Add {itemLabel}
+          </button>
+        </div>
+
+        <div className="space-y-2.5">
+          {items.map((item) => (
+            <div key={item.id} className="flex items-center gap-2">
+              <Input
+                type={type}
+                value={item.val}
+                placeholder={placeholder}
+                onChange={e => updateItem(item.id, e.target.value)}
+                className="bg-white/[0.04] border-white/15 text-white placeholder:text-stone-500 focus:border-[#d4af37] h-10 text-sm"
+              />
+              {items.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeItem(item.id)}
+                  className="h-10 w-10 shrink-0 flex items-center justify-center rounded-lg bg-red-950/30 border border-red-500/20 text-red-400 hover:bg-red-950/60 hover:text-red-300 transition-colors cursor-pointer"
+                  title={`Remove this ${itemLabel}`}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+      <p className="mt-3 text-[11px] text-stone-400">
+        Add multiple {itemLabel.toLowerCase()}s. Each will be clickable on the website.
+      </p>
+    </div>
   );
 }

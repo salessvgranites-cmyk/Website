@@ -55,9 +55,9 @@ button:active, a:active { transform: scale(.97); }
 .overview-hero h2 { font-family: "Cinzel", Georgia, serif; }
 .overview-mark { position: relative; height: 140px; width: 140px; flex: 0 0 auto; overflow: hidden; border-radius: 50%; border: 1px solid rgba(212,175,55,.5); background: radial-gradient(circle, rgba(212,175,55,.15) 0%, transparent 70%); }
 .overview-mark span { position: absolute; inset: 0; display: grid; place-items: center; font-family: "Cinzel", Georgia, serif; font-size: 3.8rem; font-weight: 700; color: #d4af37; }
-.overview-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-top: 1rem; }
-.stat-card { border-radius: 1.5rem; background: #13161b; border: 1px solid rgba(255,255,255,.08); padding: 1.5rem; box-shadow: 0 8px 30px rgba(0,0,0,.35); transition: border-color .2s, transform .2s; }
-.stat-card:hover { border-color: rgba(212,175,55,.35); transform: translateY(-2px); }
+.overview-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 1rem; margin-top: 1rem; }
+.stat-card { border-radius: 1.5rem; background: #13161b; border: 1px solid rgba(255,255,255,.08); padding: 1.25rem 1.25rem; box-shadow: 0 8px 30px rgba(0,0,0,.35); transition: border-color .2s, transform .2s, background-color .2s; }
+.stat-card:hover { border-color: rgba(212,175,55,.45); transform: translateY(-2px); background: #171b22; }
 .quick-actions { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin-top: 1rem; }
 .quick-actions button { display: flex; align-items: center; gap: .9rem; border-radius: 1.25rem; background: #13161b; border: 1px solid rgba(255,255,255,.08); padding: 1.1rem 1.25rem; text-align: left; color: #ffffff; transition: all .2s; }
 .quick-actions button:hover { background: #181c22; border-color: rgba(212,175,55,.4); transform: translateY(-2px); }
@@ -220,9 +220,10 @@ button:active, a:active { transform: scale(.97); }
 .pagination-btn:hover:not(:disabled) { border-color: #d4af37; color: #d4af37; background: rgba(212,175,55,.1); }
 .pagination-btn:disabled { opacity: .3; cursor: not-allowed; }
 
-/* 4-col stats for overview */
-@media (max-width: 1100px) { .overview-grid, .quick-actions { grid-template-columns: repeat(2,1fr); } }
-@media (max-width: 640px) { .overview-grid, .quick-actions { grid-template-columns: 1fr; } }
+/* 6-col stats for overview */
+@media (max-width: 1200px) { .overview-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px) { .overview-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 480px) { .overview-grid { grid-template-columns: 1fr; } }
 
 
 /* Continuous motion layer */
