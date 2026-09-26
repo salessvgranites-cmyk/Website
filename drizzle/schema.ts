@@ -29,8 +29,17 @@ export const siteContent = pgTable("siteContent", {
   heroImage: text("heroImage").notNull(),
   heroImage2: text("heroImage2").default("/images/hero-quarry.jpg"),
   aboutImage: text("aboutImage").notNull(),
-  logoImage: text("logoImage").notNull(),
+  logoImage: text("logoImage").default("/images/logo.jpg"),
   heroSubtext: text("heroSubtext").default("Premium Indian granite products manufactured and prepared for international markets."),
+  facilityImage1: text("facilityImage1").default("/images/hero-quarry.jpg"),
+  facilityImage2: text("facilityImage2").default("/images/craft-cutting.jpg"),
+  facilityImage3: text("facilityImage3").default("/images/slabs-warehouse.jpg"),
+  facilityImage4: text("facilityImage4").default("/images/monument-headstone.jpg"),
+  facilityImage5: text("facilityImage5").default("/images/vases-collection.jpg"),
+  facilityTitle: varchar("facilityTitle", { length: 240 }).default("From Quarry to Container"),
+  facilityCopy: text("facilityCopy").default("A state-of-the-art facility with advanced machinery and a skilled team, ensuring precision at every stage."),
+  bannerImage: text("bannerImage").default("/images/monument-headstone.jpg"),
+  mapsUrl: text("mapsUrl").default(""),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 

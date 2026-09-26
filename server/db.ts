@@ -69,13 +69,13 @@ export async function getSiteContent() {
 
 export async function getCollections() {
   const db = await getDb(); if (!db) return DEFAULT_COLLECTIONS;
-  const rows = await db.select().from(collections).where(eq(collections.isVisible, 1)).orderBy(desc(collections.isFeatured), asc(collections.sortOrder), asc(collections.id));
+  const rows = await db.select().from(collections).where(eq(collections.isVisible, 1)).orderBy(asc(collections.sortOrder), asc(collections.id));
   return rows.length ? rows : DEFAULT_COLLECTIONS;
 }
 
 export async function getAllCollections() {
   const db = await getDb(); if (!db) return DEFAULT_COLLECTIONS;
-  const rows = await db.select().from(collections).orderBy(desc(collections.isFeatured), asc(collections.sortOrder), asc(collections.id));
+  const rows = await db.select().from(collections).orderBy(asc(collections.sortOrder), asc(collections.id));
   return rows.length ? rows : DEFAULT_COLLECTIONS;
 }
 
@@ -366,5 +366,38 @@ export async function createEnquiry(input: typeof enquiries.$inferInsert) {
 export async function updateEnquiryStatus(id: number, status: string) {
   const db = await getDb(); if (!db) return null;
   await db.update(enquiries).set({ status }).where(eq(enquiries.id, id));
+  return true;
+}
+
+// --- Reordering ---
+export async function reorderProducts(orderedIds: number[]) {
+  const db = await getDb(); if (!db) return false;
+  for (let i = 0; i < orderedIds.length; i++) {
+    await db.update(products).set({ sortOrder: i + 1 }).where(eq(products.id, orderedIds[i]));
+  }
+  return true;
+}
+
+export async function reorderCollections(orderedIds: number[]) {
+  const db = await getDb(); if (!db) return false;
+  for (let i = 0; i < orderedIds.length; i++) {
+    await db.update(collections).set({ sortOrder: i + 1 }).where(eq(collections.id, orderedIds[i]));
+  }
+  return true;
+}
+
+export async function reorderFinishes(orderedIds: number[]) {
+  const db = await getDb(); if (!db) return false;
+  for (let i = 0; i < orderedIds.length; i++) {
+    await db.update(finishes).set({ sortOrder: i + 1 }).where(eq(finishes.id, orderedIds[i]));
+  }
+  return true;
+}
+
+export async function reorderGallery(orderedIds: number[]) {
+  const db = await getDb(); if (!db) return false;
+  for (let i = 0; i < orderedIds.length; i++) {
+    await db.update(gallery).set({ sortOrder: i + 1 }).where(eq(gallery.id, orderedIds[i]));
+  }
   return true;
 }

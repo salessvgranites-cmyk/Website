@@ -160,28 +160,33 @@ function DashboardLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"
-          className="border-r-0"
+          className="border-r border-white/10 bg-[#090b0e]"
           disableTransition={isResizing}
         >
-          <SidebarHeader className="h-16 justify-center">
+          <SidebarHeader className="h-16 justify-center border-b border-white/10 bg-[#090b0e]">
             <div className="flex items-center gap-3 px-2 transition-all w-full">
               <button
                 onClick={toggleSidebar}
-                className="h-8 w-8 flex items-center justify-center hover:bg-accent rounded-lg transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring shrink-0"
+                className="h-8 w-8 flex items-center justify-center hover:bg-white/10 rounded-lg transition-colors focus:outline-none text-stone-400 hover:text-white shrink-0"
                 aria-label="Toggle navigation"
               >
-                <PanelLeft className="h-4 w-4 text-muted-foreground" />
+                <PanelLeft className="h-4 w-4" />
               </button>
               {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0">
-                    <span className="font-semibold tracking-tight truncate">SV Granites</span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex flex-col items-center">
+                    <span className="font-cinzel text-lg font-bold tracking-[0.18em] text-[#d4af37] leading-none">SV</span>
+                    <span className="font-cinzel text-[7px] uppercase tracking-[0.34em] text-white/80 -mt-0.5 leading-none">GRANITES</span>
+                  </div>
+                  <div className="h-5 w-[1px] bg-white/15"></div>
+                  <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#9ca3af]">Studio</span>
                 </div>
               ) : null}
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="gap-0">
-            <SidebarMenu className="px-2 py-1">
+          <SidebarContent className="gap-0 bg-[#090b0e]">
+            <SidebarMenu className="px-2 py-3 gap-1">
               {menuItems.map(item => {
                 const isActive = location === item.path;
                 return (
@@ -190,10 +195,14 @@ function DashboardLayoutContent({
                       isActive={isActive}
                       onClick={() => setLocation(item.path)}
                       tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
+                      className={`h-11 px-3 rounded-xl transition-all font-semibold text-xs tracking-wider uppercase ${
+                        isActive
+                          ? "bg-[#d4af37]/15 text-[#d4af37] border-l-2 border-[#d4af37]"
+                          : "text-stone-400 hover:text-white hover:bg-white/5"
+                      }`}
                     >
                       <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
+                        className={`h-4 w-4 ${isActive ? "text-[#d4af37]" : "text-stone-400"}`}
                       />
                       <span>{item.label}</span>
                     </SidebarMenuButton>
@@ -203,29 +212,29 @@ function DashboardLayoutContent({
             </SidebarMenu>
           </SidebarContent>
 
-          <SidebarFooter className="p-3">
+          <SidebarFooter className="p-3 border-t border-white/10 bg-[#090b0e]">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar className="h-9 w-9 border shrink-0">
-                    <AvatarFallback className="text-xs font-medium">
+                <button className="flex items-center gap-3 rounded-xl px-2 py-2 hover:bg-white/5 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none">
+                  <Avatar className="h-9 w-9 border border-[#d4af37]/40 bg-[#13161b] shrink-0 text-[#d4af37]">
+                    <AvatarFallback className="text-xs font-bold bg-[#13161b] text-[#d4af37]">
                       {user?.name?.charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-medium truncate leading-none">
+                    <p className="text-sm font-medium text-white truncate leading-none">
                       {user?.name || "-"}
                     </p>
-                    <p className="text-xs text-muted-foreground truncate mt-1.5">
+                    <p className="text-xs text-stone-400 truncate mt-1.5">
                       {user?.email || "-"}
                     </p>
                   </div>
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent align="end" className="w-48 bg-[#13161b] border-white/10 text-white">
                 <DropdownMenuItem
                   onClick={logout}
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  className="cursor-pointer text-red-400 focus:text-red-300 focus:bg-red-500/10"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Sign out</span>
@@ -235,7 +244,7 @@ function DashboardLayoutContent({
           </SidebarFooter>
         </Sidebar>
         <div
-          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/20 transition-colors ${isCollapsed ? "hidden" : ""}`}
+          className={`absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-[#d4af37]/30 transition-colors ${isCollapsed ? "hidden" : ""}`}
           onMouseDown={() => {
             if (isCollapsed) return;
             setIsResizing(true);
@@ -244,22 +253,20 @@ function DashboardLayoutContent({
         />
       </div>
 
-      <SidebarInset>
+      <SidebarInset className="bg-[#0d0f12] text-white">
         {isMobile && (
-          <div className="flex border-b h-14 items-center justify-between bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:backdrop-blur sticky top-0 z-40">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger className="h-9 w-9 rounded-lg bg-background" />
-              <div className="flex items-center gap-3">
-                <div className="flex flex-col gap-1">
-                  <span className="tracking-tight text-foreground">
-                    {activeMenuItem?.label ?? "Menu"}
-                  </span>
-                </div>
+          <div className="flex border-b border-white/10 h-14 items-center justify-between bg-[#090b0e] px-4 sticky top-0 z-40">
+            <div className="flex items-center gap-3">
+              <SidebarTrigger className="h-9 w-9 rounded-lg text-white hover:bg-white/10" />
+              <div className="flex items-center gap-2">
+                <span className="font-cinzel text-sm font-bold tracking-widest text-[#d4af37]">
+                  {activeMenuItem?.label ?? "Menu"}
+                </span>
               </div>
             </div>
           </div>
         )}
-        <main className="flex-1 p-4">{children}</main>
+        <main className="flex-1 p-0 bg-[#0d0f12] text-white">{children}</main>
       </SidebarInset>
     </>
   );

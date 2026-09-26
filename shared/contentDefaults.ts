@@ -16,6 +16,15 @@ export const DEFAULT_CONTENT = {
   aboutImage: "/images/craft-cutting.jpg",
   logoImage: "/images/logo.jpg",
   heroSubtext: "Premium Indian granite products manufactured and prepared for international markets.",
+  facilityImage1: "/images/hero-quarry.jpg",
+  facilityImage2: "/images/craft-cutting.jpg",
+  facilityImage3: "/images/slabs-warehouse.jpg",
+  facilityImage4: "/images/monument-headstone.jpg",
+  facilityImage5: "/images/vases-collection.jpg",
+  facilityTitle: "From Quarry to Container",
+  facilityCopy: "A state-of-the-art facility with advanced machinery and a skilled team, ensuring precision at every stage.",
+  bannerImage: "/images/monument-headstone.jpg",
+  mapsUrl: "",
 };
 
 export const DEFAULT_COLLECTIONS = [
@@ -27,20 +36,20 @@ export const DEFAULT_COLLECTIONS = [
 ];
 
 export const DEFAULT_GALLERY = [
-  { title: "Indian Black Quarry", location: "Quarry · Tamil Nadu", year: "2024", imageUrl: "/images/indian-black.jpg", sortOrder: 1, isVisible: 1 },
-  { title: "Absolute Black Slabs", location: "Processing · Yard", year: "2024", imageUrl: "/images/absolute-black.jpg", sortOrder: 2, isVisible: 1 },
-  { title: "Steel Grey Granite", location: "Fabrication Unit", year: "2024", imageUrl: "/images/steel-grey.jpg", sortOrder: 3, isVisible: 1 },
-  { title: "Black Galaxy Polish", location: "Finished Slabs", year: "2024", imageUrl: "/images/black-galaxy.jpg", sortOrder: 4, isVisible: 1 },
-  { title: "Tan Brown Vein", location: "Material Yard", year: "2024", imageUrl: "/images/tan-brown.jpg", sortOrder: 5, isVisible: 1 },
-  { title: "Slabs Warehouse", location: "Chennai Facility", year: "2024", imageUrl: "/images/slabs-warehouse.jpg", sortOrder: 6, isVisible: 1 },
-  { title: "Monument Headstone", location: "Memorial Studio", year: "2024", imageUrl: "/images/monument-headstone.jpg", sortOrder: 7, isVisible: 1 },
-  { title: "Granite Vases Collection", location: "Accessories", year: "2024", imageUrl: "/images/vases-collection.jpg", sortOrder: 8, isVisible: 1 },
-  { title: "Bridge Saw Cutting", location: "Processing Unit", year: "2024", imageUrl: "/images/craft-cutting.jpg", sortOrder: 9, isVisible: 1 },
-  { title: "Monumental Quarry", location: "South India", year: "2024", imageUrl: "/images/hero-quarry.jpg", sortOrder: 10, isVisible: 1 },
-  { title: "Noir Vein Satin", location: "Architectural Studio", year: "2024", imageUrl: "/images/noir-vein.jpg", sortOrder: 11, isVisible: 1 },
-  { title: "Waterjet Natural Relief", location: "Texture Lab", year: "2024", imageUrl: "/images/waterfall.jpg", sortOrder: 12, isVisible: 1 },
-  { title: "Precision Edge Profiling", location: "CNC Workshop", year: "2024", imageUrl: "/images/feature-wall.jpg", sortOrder: 13, isVisible: 1 },
-  { title: "Bush Hammered Pavement", location: "Exterior Yard", year: "2024", imageUrl: "/images/cloud-ledger.jpg", sortOrder: 14, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/indian-black.jpg", sortOrder: 1, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/absolute-black.jpg", sortOrder: 2, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/steel-grey.jpg", sortOrder: 3, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/black-galaxy.jpg", sortOrder: 4, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/tan-brown.jpg", sortOrder: 5, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/slabs-warehouse.jpg", sortOrder: 6, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/monument-headstone.jpg", sortOrder: 7, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/vases-collection.jpg", sortOrder: 8, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/craft-cutting.jpg", sortOrder: 9, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/hero-quarry.jpg", sortOrder: 10, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/noir-vein.jpg", sortOrder: 11, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/waterfall.jpg", sortOrder: 12, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/feature-wall.jpg", sortOrder: 13, isVisible: 1 },
+  { title: "", location: "", year: "", imageUrl: "/images/cloud-ledger.jpg", sortOrder: 14, isVisible: 1 },
 ];
 
 export const DEFAULT_PRODUCTS = [

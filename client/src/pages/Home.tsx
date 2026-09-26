@@ -1111,11 +1111,11 @@ export default function Home() {
                     <div className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#847968] mb-2">
                       OUR FACILITY
                     </div>
-                    <h2 className="font-cinzel text-3xl font-semibold leading-tight text-[#151310] mb-3">
-                      From Quarry<br />to Container
+                    <h2 className="font-cinzel text-3xl font-semibold leading-tight text-[#151310] mb-3 whitespace-pre-line">
+                      {content.facilityTitle || "From Quarry\nto Container"}
                     </h2>
                     <p className="text-sm text-[#5c5447] leading-relaxed mb-8 max-w-xl">
-                      A state-of-the-art facility with advanced machinery and a skilled team, ensuring precision at every stage.
+                      {content.facilityCopy || "A state-of-the-art facility with advanced machinery and a skilled team, ensuring precision at every stage."}
                     </p>
 
                     {/* 5 Progression Thumbnails */}
@@ -1123,35 +1123,35 @@ export default function Home() {
                       {/* 1. Quarry */}
                       <div>
                         <div className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm">
-                          <img src="/images/hero-quarry.jpg" alt="Quarry" className="h-full w-full object-cover" />
+                          <img src={content.facilityImage1 || "/images/hero-quarry.jpg"} alt="Quarry" className="h-full w-full object-cover" />
                         </div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-center text-[#151310]">QUARRY</div>
                       </div>
                       {/* 2. Cutting */}
                       <div>
                         <div className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm">
-                          <img src="/images/craft-cutting.jpg" alt="Cutting" className="h-full w-full object-cover" />
+                          <img src={content.facilityImage2 || "/images/craft-cutting.jpg"} alt="Cutting" className="h-full w-full object-cover" />
                         </div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-center text-[#151310]">CUTTING</div>
                       </div>
                       {/* 3. Polishing */}
                       <div>
                         <div className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm">
-                          <img src="/images/slabs-warehouse.jpg" alt="Polishing" className="h-full w-full object-cover" />
+                          <img src={content.facilityImage3 || "/images/slabs-warehouse.jpg"} alt="Polishing" className="h-full w-full object-cover" />
                         </div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-center text-[#151310]">POLISHING</div>
                       </div>
                       {/* 4. Packaging */}
                       <div>
                         <div className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm">
-                          <img src="/images/monument-headstone.jpg" alt="Packaging" className="h-full w-full object-cover" />
+                          <img src={content.facilityImage4 || "/images/monument-headstone.jpg"} alt="Packaging" className="h-full w-full object-cover" />
                         </div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-center text-[#151310]">PACKAGING</div>
                       </div>
                       {/* 5. Loading */}
                       <div>
                         <div className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm">
-                          <img src="/images/vases-collection.jpg" alt="Loading" className="h-full w-full object-cover" />
+                          <img src={content.facilityImage5 || "/images/vases-collection.jpg"} alt="Loading" className="h-full w-full object-cover" />
                         </div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-center text-[#151310]">LOADING</div>
                       </div>
@@ -1171,7 +1171,12 @@ export default function Home() {
                           <div className="text-[15px] font-medium text-[#151310]">{content.email || "sales.svgranites@gmail.com"}</div>
                         </div>
                       </a>
-                      <a href={`https://maps.google.com/?q=${encodeURIComponent(content.address || "NO.951/3,Poovallikuppam Village Kadampathur Block, Post, Mappedu, Chennai, Tamil Nadu 602105")}`} target="_blank" rel="noopener noreferrer" className="flex items-start gap-4 hover:opacity-80 transition-opacity group">
+                      <a
+                        href={content.mapsUrl?.trim() ? content.mapsUrl.trim() : `https://maps.google.com/?q=${encodeURIComponent(content.address || "NO.951/3,Poovallikuppam Village Kadampathur Block, Post, Mappedu, Chennai, Tamil Nadu 602105")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-start gap-4 hover:opacity-80 transition-opacity group"
+                      >
                         <MapPin className="w-5 h-5 text-[#c8a35f] shrink-0" />
                         <div>
                           <div className="text-[15px] font-medium text-[#151310] leading-relaxed max-w-sm">
@@ -1299,7 +1304,7 @@ export default function Home() {
           {/* Panoramic background image */}
           <div className="absolute inset-0 z-0">
             <img 
-              src="/images/monument-headstone.jpg" 
+              src={content.bannerImage || "/images/monument-headstone.jpg"} 
               alt="Monuments in memorial landscape setting" 
               className="h-full w-full object-cover object-bottom brightness-[0.4] filter contrast-125"
             />

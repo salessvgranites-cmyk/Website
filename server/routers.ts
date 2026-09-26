@@ -8,6 +8,7 @@ import {
   deleteCollection, deleteFinish, deleteGalleryItem, deleteProduct,
   getAllCollections, getAllFinishes, getAllGallery, getAllProducts,
   getCollections, getEnquiries, getFinishes, getGallery, getProducts, getSectionVisibility, getSiteContent,
+  reorderCollections, reorderFinishes, reorderGallery, reorderProducts,
   seedGraniteContent,
   toggleCollectionVisibility, toggleFinishVisibility, toggleGalleryVisibility, toggleProductVisibility,
   updateCollection, updateEnquiryStatus, updateFinish, updateGalleryItem, updateProduct,
@@ -32,6 +33,15 @@ const contentInput = z.object({
   aboutImage: z.string().nullish(),
   logoImage: z.string().nullish(),
   heroSubtext: z.string().nullish(),
+  facilityImage1: z.string().nullish(),
+  facilityImage2: z.string().nullish(),
+  facilityImage3: z.string().nullish(),
+  facilityImage4: z.string().nullish(),
+  facilityImage5: z.string().nullish(),
+  facilityTitle: z.string().nullish(),
+  facilityCopy: z.string().nullish(),
+  bannerImage: z.string().nullish(),
+  mapsUrl: z.string().nullish(),
 });
 
 const collectionInput = z.object({
@@ -101,6 +111,7 @@ export const appRouter = router({
     createCollection: adminProcedure.input(collectionInput).mutation(({ input }) => createCollection({ name: input.name, category: input.category, description: input.description, finish: input.finish, imageUrl: input.imageUrl, isFeatured: input.isFeatured ?? 1 })),
     deleteCollection: adminProcedure.input(z.object({ id: z.number().int() })).mutation(({ input }) => deleteCollection(input.id)),
     toggleCollectionVisibility: adminProcedure.input(z.object({ id: z.number().int(), isVisible: z.number().int().min(0).max(1) })).mutation(({ input }) => toggleCollectionVisibility(input.id, input.isVisible)),
+    reorderCollections: adminProcedure.input(z.array(z.number().int())).mutation(({ input }) => reorderCollections(input)),
 
     // Gallery
     gallery: adminProcedure.query(async () => { await seedGraniteContent(); return getAllGallery(); }),
@@ -108,6 +119,7 @@ export const appRouter = router({
     createGallery: adminProcedure.input(galleryInput).mutation(({ input }) => createGalleryItem({ ...input, sortOrder: input.sortOrder ?? 0 })),
     deleteGallery: adminProcedure.input(z.object({ id: z.number().int() })).mutation(({ input }) => deleteGalleryItem(input.id)),
     toggleGalleryVisibility: adminProcedure.input(z.object({ id: z.number().int(), isVisible: z.number().int().min(0).max(1) })).mutation(({ input }) => toggleGalleryVisibility(input.id, input.isVisible)),
+    reorderGallery: adminProcedure.input(z.array(z.number().int())).mutation(({ input }) => reorderGallery(input)),
 
     // Products
     products: adminProcedure.query(async () => { await seedGraniteContent(); return getAllProducts(); }),
@@ -115,6 +127,7 @@ export const appRouter = router({
     createProduct: adminProcedure.input(productInput).mutation(({ input }) => createProduct({ name: input.name, description: input.description, imageUrl: input.imageUrl, sortOrder: input.sortOrder ?? 0 })),
     deleteProduct: adminProcedure.input(z.object({ id: z.number().int() })).mutation(({ input }) => deleteProduct(input.id)),
     toggleProductVisibility: adminProcedure.input(z.object({ id: z.number().int(), isVisible: z.number().int().min(0).max(1) })).mutation(({ input }) => toggleProductVisibility(input.id, input.isVisible)),
+    reorderProducts: adminProcedure.input(z.array(z.number().int())).mutation(({ input }) => reorderProducts(input)),
 
     // Finishes
     finishes: adminProcedure.query(async () => { await seedGraniteContent(); return getAllFinishes(); }),
@@ -122,6 +135,7 @@ export const appRouter = router({
     createFinish: adminProcedure.input(finishInput).mutation(({ input }) => createFinish({ name: input.name, tagline: input.tagline, description: input.description, badge: input.badge, imageUrl: input.imageUrl, sortOrder: input.sortOrder ?? 0 })),
     deleteFinish: adminProcedure.input(z.object({ id: z.number().int() })).mutation(({ input }) => deleteFinish(input.id)),
     toggleFinishVisibility: adminProcedure.input(z.object({ id: z.number().int(), isVisible: z.number().int().min(0).max(1) })).mutation(({ input }) => toggleFinishVisibility(input.id, input.isVisible)),
+    reorderFinishes: adminProcedure.input(z.array(z.number().int())).mutation(({ input }) => reorderFinishes(input)),
 
     // Section Visibility
     sectionVisibility: adminProcedure.query(async () => { await seedGraniteContent(); return getSectionVisibility(); }),
