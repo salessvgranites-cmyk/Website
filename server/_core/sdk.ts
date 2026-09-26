@@ -213,7 +213,7 @@ class SDKServer {
 
       if (
         !isNonEmptyString(openId) ||
-        !isNonEmptyString(appId) ||
+        typeof appId !== "string" || // allow empty appId for local Google OAuth
         !isNonEmptyString(name)
       ) {
         console.warn("[Auth] Session payload missing required fields");
@@ -222,7 +222,7 @@ class SDKServer {
 
       return {
         openId,
-        appId,
+        appId: appId || "",
         name,
       };
     } catch (error) {
@@ -289,8 +289,13 @@ class SDKServer {
     const signedInAt = new Date();
     let user = await db.getUserByOpenId(sessionUserId);
 
-    // If user not in DB, sync from OAuth server automatically
+    // If user not in DB, sync from OAuth server (skip for local Google OAuth users)
     if (!user) {
+      if (sessionUserId.startsWith("google_")) {
+        // Google OAuth users are inserted in the callback — if not found here,
+        // it means the DB insert failed. Nothing to sync from Manus.
+        throw ForbiddenError("Google user not found in DB — try signing in again");
+      }
       try {
         const userInfo = await this.getUserInfoWithJwt(sessionToken ?? "");
         await db.upsertUser({

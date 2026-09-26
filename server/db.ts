@@ -1,46 +1,38 @@
-import { and, asc, desc, eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, collections, enquiries, gallery, siteContent, users } from "../drizzle/schema";
+import { asc, desc, eq } from "drizzle-orm";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import { InsertUser, collections, enquiries, finishes, gallery, products, sectionVisibility, siteContent, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { appendEnquiryToGoogleSheet } from "./googleSheets";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
-export const DEFAULT_CONTENT = {
-  brandName: "Sri Venkateswara Granites",
-  tagline: "Crafted by Nature. Perfected by Us.",
-  heroEyebrow: "Premium natural stone · Since 1998",
-  heroTitle: "Stone with a point of view.",
-  heroCopy: "Architectural granite selected for bold residences, refined hospitality, and spaces made to last generations.",
-  aboutTitle: "Nature Creates it, We perfect it.",
-  aboutCopy: "Every piece of stone carries its own character. At SVG, we carefully select, process, and finish natural granite to bring out its lasting beauty- crafted for projects that are built to endure.",
-  phone: "9790613468",
-  whatsapp: "9790613468",
-  email: "sales.svgranites@gmail.com",
-  address: "NO.951/3,Poovallikuppam Village Kadampathur Block, Post, Mappedu, Chennai, Tamil Nadu 602105",
-  hours: "Mon–Sat · 9:30 AM — 6:30 PM",
-  heroImage: "/images/hero.jpg",
-  aboutImage: "/images/point-of-view.jpeg",
-  logoImage: "/images/logo.jpg",
-};
-
-export const DEFAULT_COLLECTIONS = [
-  { name: "Indian Black Granite", category: "Signature Black", description: "Deep graphite with a quiet, mineral rhythm for dramatic islands and monolithic walls.", finish: "Leathered", imageUrl: "/images/indian-black.jpg", isFeatured: 1 },
-  { name: "Absolute Black Granite", category: "Architectural Slabs", description: "A near-black surface with a velvet depth for fireplace surrounds and hotel statements.", finish: "Honed", imageUrl: "/images/absolute-black.jpg", isFeatured: 1 },
-  { name: "Steel Grey Granite", category: "Cool Greys", description: "Layered grey movement with a sculptural presence for feature walls and hospitality spaces.", finish: "Polished", imageUrl: "/images/steel-grey.jpg", isFeatured: 1 },
-  { name: "Black Galaxy Granite", category: "Sparkling Darks", description: "Deep black background speckled with radiant golden and copper flecks.", finish: "Polished", imageUrl: "/images/black-galaxy.jpg", isFeatured: 1 },
-  { name: "Tan Brown Granite", category: "Earthy Browns", description: "Rich chocolate and tan tones with dark grey and black accents for warm interiors.", finish: "Leathered", imageUrl: "/images/tan-brown.jpg", isFeatured: 1 },
-];
-
-export const DEFAULT_GALLERY = [
-  { title: "The Black House", location: "Bengaluru · Residence", year: "2024", imageUrl: "/images/project-black-house.jpg", sortOrder: 1 },
-  { title: "Soft Geometry", location: "Chennai · Private home", year: "2023", imageUrl: "/images/project-soft-geometry.jpg", sortOrder: 2 },
-  { title: "The Long Table", location: "Goa · Hospitality", year: "2024", imageUrl: "/images/project-long-table.jpg", sortOrder: 3 },
-];
+export {
+  DEFAULT_COLLECTIONS,
+  DEFAULT_CONTENT,
+  DEFAULT_FINISHES,
+  DEFAULT_GALLERY,
+  DEFAULT_PRODUCTS,
+  DEFAULT_SECTION_VISIBILITY,
+} from "@shared/contentDefaults";
+import {
+  DEFAULT_COLLECTIONS,
+  DEFAULT_CONTENT,
+  DEFAULT_FINISHES,
+  DEFAULT_GALLERY,
+  DEFAULT_PRODUCTS,
+  DEFAULT_SECTION_VISIBILITY,
+} from "@shared/contentDefaults";
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
-    try { _db = drizzle(process.env.DATABASE_URL); } catch (error) { console.warn("[Database] Failed to connect:", error); _db = null; }
+    try {
+      const sql = neon(process.env.DATABASE_URL);
+      _db = drizzle(sql);
+    } catch (error) {
+      console.warn("[Database] Failed to connect:", error);
+      _db = null;
+    }
   }
   return _db;
 }
@@ -55,10 +47,12 @@ export async function upsertUser(user: InsertUser): Promise<void> {
   for (const field of textFields) { if (user[field] !== undefined) { values[field] = user[field] ?? null; updateSet[field] = user[field] ?? null; } }
   if (user.lastSignedIn !== undefined) { values.lastSignedIn = user.lastSignedIn; updateSet.lastSignedIn = user.lastSignedIn; }
   if (user.role !== undefined) { values.role = user.role; updateSet.role = user.role; }
-  else if (user.openId === ENV.ownerOpenId) { values.role = 'admin'; updateSet.role = 'admin'; }
+  else if (user.openId === ENV.ownerOpenId || (user.email && user.email === process.env.ADMIN_EMAIL)) {
+    values.role = 'admin'; updateSet.role = 'admin';
+  }
   values.lastSignedIn ??= new Date();
   if (!Object.keys(updateSet).length) updateSet.lastSignedIn = new Date();
-  await db.insert(users).values(values).onDuplicateKeyUpdate({ set: updateSet });
+  await db.insert(users).values(values).onConflictDoUpdate({ target: users.openId, set: updateSet });
 }
 
 export async function getUserByOpenId(openId: string) {
@@ -75,14 +69,56 @@ export async function getSiteContent() {
 
 export async function getCollections() {
   const db = await getDb(); if (!db) return DEFAULT_COLLECTIONS;
-  const rows = await db.select().from(collections).orderBy(desc(collections.isFeatured), asc(collections.id));
+  const rows = await db.select().from(collections).where(eq(collections.isVisible, 1)).orderBy(desc(collections.isFeatured), asc(collections.sortOrder), asc(collections.id));
+  return rows.length ? rows : DEFAULT_COLLECTIONS;
+}
+
+export async function getAllCollections() {
+  const db = await getDb(); if (!db) return DEFAULT_COLLECTIONS;
+  const rows = await db.select().from(collections).orderBy(desc(collections.isFeatured), asc(collections.sortOrder), asc(collections.id));
   return rows.length ? rows : DEFAULT_COLLECTIONS;
 }
 
 export async function getGallery() {
   const db = await getDb(); if (!db) return DEFAULT_GALLERY;
+  const rows = await db.select().from(gallery).where(eq(gallery.isVisible, 1)).orderBy(asc(gallery.sortOrder), asc(gallery.id));
+  return rows.length ? rows : DEFAULT_GALLERY;
+}
+
+export async function getAllGallery() {
+  const db = await getDb(); if (!db) return DEFAULT_GALLERY;
   const rows = await db.select().from(gallery).orderBy(asc(gallery.sortOrder), asc(gallery.id));
   return rows.length ? rows : DEFAULT_GALLERY;
+}
+
+export async function getProducts() {
+  const db = await getDb(); if (!db) return DEFAULT_PRODUCTS;
+  const rows = await db.select().from(products).where(eq(products.isVisible, 1)).orderBy(asc(products.sortOrder), asc(products.id));
+  return rows.length ? rows : DEFAULT_PRODUCTS;
+}
+
+export async function getAllProducts() {
+  const db = await getDb(); if (!db) return DEFAULT_PRODUCTS;
+  const rows = await db.select().from(products).orderBy(asc(products.sortOrder), asc(products.id));
+  return rows.length ? rows : DEFAULT_PRODUCTS;
+}
+
+export async function getFinishes() {
+  const db = await getDb(); if (!db) return DEFAULT_FINISHES;
+  const rows = await db.select().from(finishes).where(eq(finishes.isVisible, 1)).orderBy(asc(finishes.sortOrder), asc(finishes.id));
+  return rows.length ? rows : DEFAULT_FINISHES;
+}
+
+export async function getAllFinishes() {
+  const db = await getDb(); if (!db) return DEFAULT_FINISHES;
+  const rows = await db.select().from(finishes).orderBy(asc(finishes.sortOrder), asc(finishes.id));
+  return rows.length ? rows : DEFAULT_FINISHES;
+}
+
+export async function getSectionVisibility() {
+  const db = await getDb(); if (!db) return DEFAULT_SECTION_VISIBILITY;
+  const rows = await db.select().from(sectionVisibility).orderBy(asc(sectionVisibility.id));
+  return rows.length ? rows : DEFAULT_SECTION_VISIBILITY;
 }
 
 export async function getEnquiries() {
@@ -90,44 +126,241 @@ export async function getEnquiries() {
   return db.select().from(enquiries).orderBy(desc(enquiries.createdAt));
 }
 
+let _isSeeding = false;
 export async function seedGraniteContent() {
-  const db = await getDb(); if (!db) return;
-  const current = await db.select().from(siteContent).limit(1);
-  if (!current.length) await db.insert(siteContent).values(DEFAULT_CONTENT);
-  const existingCollections = await db.select().from(collections).limit(1);
-  if (!existingCollections.length) await db.insert(collections).values(DEFAULT_COLLECTIONS);
-  const existingGallery = await db.select().from(gallery).limit(1);
-  if (!existingGallery.length) await db.insert(gallery).values(DEFAULT_GALLERY);
+  if (_isSeeding) return;
+  _isSeeding = true;
+  try {
+    const db = await getDb(); if (!db) return;
+    const current = await db.select().from(siteContent).limit(1);
+    if (!current.length) await db.insert(siteContent).values(DEFAULT_CONTENT);
+    const existingCollections = await db.select().from(collections).limit(1);
+    if (!existingCollections.length) await db.insert(collections).values(DEFAULT_COLLECTIONS);
+    const existingGallery = await db.select().from(gallery).limit(1);
+    if (!existingGallery.length) await db.insert(gallery).values(DEFAULT_GALLERY);
+    const existingProducts = await db.select().from(products).limit(1);
+    if (!existingProducts.length) await db.insert(products).values(DEFAULT_PRODUCTS);
+    const existingFinishes = await db.select().from(finishes).limit(1);
+    if (!existingFinishes.length) await db.insert(finishes).values(DEFAULT_FINISHES);
+    const existingVisibility = await db.select().from(sectionVisibility).limit(1);
+    if (!existingVisibility.length) await db.insert(sectionVisibility).values(DEFAULT_SECTION_VISIBILITY);
+  } finally {
+    _isSeeding = false;
+  }
 }
 
-export async function updateSiteContent(input: Partial<typeof DEFAULT_CONTENT>) {
+export async function updateSiteContent(input: Record<string, any>) {
   const db = await getDb(); if (!db) return DEFAULT_CONTENT;
   await seedGraniteContent();
-  await db.update(siteContent).set(input).where(eq(siteContent.id, 1));
+  const rows = await db.select({ id: siteContent.id }).from(siteContent).limit(1);
+  const cleanInput: Record<string, any> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (value !== undefined && value !== null) {
+      cleanInput[key] = value;
+    }
+  }
+  delete cleanInput.id;
+  delete cleanInput.createdAt;
+  delete cleanInput.updatedAt;
+  if (rows.length && rows[0]?.id) {
+    await db.update(siteContent).set({ ...cleanInput, updatedAt: new Date() }).where(eq(siteContent.id, rows[0].id));
+  } else {
+    await db.insert(siteContent).values({ ...DEFAULT_CONTENT, ...cleanInput });
+  }
   return getSiteContent();
 }
 
-export async function updateCollection(id: number, input: Partial<typeof DEFAULT_COLLECTIONS[number]>) {
+// --- Collections ---
+export async function updateCollection(id: number, input: Record<string, any>) {
   const db = await getDb(); if (!db) return null;
-  await db.update(collections).set(input).where(eq(collections.id, id));
+  const cleanInput: Record<string, any> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (value !== undefined) cleanInput[key] = value;
+  }
+  delete cleanInput.id;
+  delete cleanInput.createdAt;
+  delete cleanInput.updatedAt;
+  await db.update(collections).set(cleanInput).where(eq(collections.id, id));
   return db.select().from(collections).where(eq(collections.id, id)).limit(1);
 }
-
-export async function updateGalleryItem(id: number, input: Partial<typeof DEFAULT_GALLERY[number]>) {
+export async function createCollection(input: {
+  name: string;
+  category?: string | null;
+  description?: string | null;
+  finish?: string | null;
+  imageUrl?: string | null;
+  isFeatured?: number | null;
+  sortOrder?: number | null;
+  isVisible?: number | null;
+}) {
   const db = await getDb(); if (!db) return null;
-  await db.update(gallery).set(input).where(eq(gallery.id, id));
-  return db.select().from(gallery).where(eq(gallery.id, id)).limit(1);
+  const result = await db.insert(collections).values({
+    name: input.name,
+    category: input.category || "General",
+    description: input.description || "",
+    finish: input.finish || "Polished",
+    imageUrl: input.imageUrl || "",
+    isFeatured: input.isFeatured ?? 1,
+    sortOrder: input.sortOrder ?? 0,
+    isVisible: input.isVisible ?? 1,
+  }).returning({ id: collections.id });
+  return result[0];
+}
+export async function deleteCollection(id: number) {
+  const db = await getDb(); if (!db) return null;
+  await db.delete(collections).where(eq(collections.id, id));
+  return true;
+}
+export async function toggleCollectionVisibility(id: number, isVisible: number) {
+  const db = await getDb(); if (!db) return null;
+  await db.update(collections).set({ isVisible }).where(eq(collections.id, id));
+  return true;
 }
 
+// --- Gallery ---
+export async function updateGalleryItem(id: number, input: Record<string, any>) {
+  const db = await getDb(); if (!db) return null;
+  const cleanInput: Record<string, any> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (value !== undefined) cleanInput[key] = value;
+  }
+  delete cleanInput.id;
+  delete cleanInput.createdAt;
+  delete cleanInput.updatedAt;
+  await db.update(gallery).set(cleanInput).where(eq(gallery.id, id));
+  return db.select().from(gallery).where(eq(gallery.id, id)).limit(1);
+}
+export async function createGalleryItem(input: {
+  title?: string | null;
+  location?: string | null;
+  year?: string | null;
+  imageUrl?: string | null;
+  sortOrder?: number | null;
+  isVisible?: number | null;
+}) {
+  const db = await getDb(); if (!db) return null;
+  const result = await db.insert(gallery).values({
+    title: input.title || "",
+    location: input.location || "",
+    year: input.year || new Date().getFullYear().toString(),
+    imageUrl: input.imageUrl || "",
+    sortOrder: input.sortOrder ?? 0,
+    isVisible: input.isVisible ?? 1,
+  }).returning({ id: gallery.id });
+  return result[0];
+}
+export async function deleteGalleryItem(id: number) {
+  const db = await getDb(); if (!db) return null;
+  await db.delete(gallery).where(eq(gallery.id, id));
+  return true;
+}
+export async function toggleGalleryVisibility(id: number, isVisible: number) {
+  const db = await getDb(); if (!db) return null;
+  await db.update(gallery).set({ isVisible }).where(eq(gallery.id, id));
+  return true;
+}
+
+// --- Products ---
+export async function updateProduct(id: number, input: Record<string, any>) {
+  const db = await getDb(); if (!db) return null;
+  const cleanInput: Record<string, any> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (value !== undefined) cleanInput[key] = value;
+  }
+  delete cleanInput.id;
+  delete cleanInput.createdAt;
+  delete cleanInput.updatedAt;
+  await db.update(products).set(cleanInput).where(eq(products.id, id));
+  return db.select().from(products).where(eq(products.id, id)).limit(1);
+}
+export async function createProduct(input: {
+  name: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  sortOrder?: number | null;
+  isVisible?: number | null;
+}) {
+  const db = await getDb(); if (!db) return null;
+  const result = await db.insert(products).values({
+    name: input.name,
+    description: input.description || "",
+    imageUrl: input.imageUrl || "",
+    sortOrder: input.sortOrder ?? 0,
+    isVisible: input.isVisible ?? 1,
+  }).returning({ id: products.id });
+  return result[0];
+}
+export async function deleteProduct(id: number) {
+  const db = await getDb(); if (!db) return null;
+  await db.delete(products).where(eq(products.id, id));
+  return true;
+}
+export async function toggleProductVisibility(id: number, isVisible: number) {
+  const db = await getDb(); if (!db) return null;
+  await db.update(products).set({ isVisible }).where(eq(products.id, id));
+  return true;
+}
+
+// --- Finishes ---
+export async function updateFinish(id: number, input: Record<string, any>) {
+  const db = await getDb(); if (!db) return null;
+  const cleanInput: Record<string, any> = {};
+  for (const [key, value] of Object.entries(input)) {
+    if (value !== undefined) cleanInput[key] = value;
+  }
+  delete cleanInput.id;
+  delete cleanInput.createdAt;
+  delete cleanInput.updatedAt;
+  await db.update(finishes).set(cleanInput).where(eq(finishes.id, id));
+  return db.select().from(finishes).where(eq(finishes.id, id)).limit(1);
+}
+export async function createFinish(input: {
+  name: string;
+  tagline?: string | null;
+  description?: string | null;
+  badge?: string | null;
+  imageUrl?: string | null;
+  sortOrder?: number | null;
+  isVisible?: number | null;
+}) {
+  const db = await getDb(); if (!db) return null;
+  const result = await db.insert(finishes).values({
+    name: input.name,
+    tagline: input.tagline || "",
+    description: input.description || "",
+    badge: input.badge || "Classic",
+    imageUrl: input.imageUrl || "",
+    sortOrder: input.sortOrder ?? 0,
+    isVisible: input.isVisible ?? 1,
+  }).returning({ id: finishes.id });
+  return result[0];
+}
+export async function deleteFinish(id: number) {
+  const db = await getDb(); if (!db) return null;
+  await db.delete(finishes).where(eq(finishes.id, id));
+  return true;
+}
+export async function toggleFinishVisibility(id: number, isVisible: number) {
+  const db = await getDb(); if (!db) return null;
+  await db.update(finishes).set({ isVisible }).where(eq(finishes.id, id));
+  return true;
+}
+
+// --- Section Visibility ---
+export async function updateSectionVisibility(sectionKey: string, isVisible: number) {
+  const db = await getDb(); if (!db) return null;
+  await db.update(sectionVisibility).set({ isVisible }).where(eq(sectionVisibility.sectionKey, sectionKey));
+  return true;
+}
+
+// --- Enquiries ---
 export async function createEnquiry(input: typeof enquiries.$inferInsert) {
-  // Asynchronously push to Google Sheets without blocking or failing if Google is slow
   appendEnquiryToGoogleSheet(input).catch(err => {
     console.error("[Google Sheets] Async forward error:", err);
   });
-
   const db = await getDb(); if (!db) return { ...input, id: Date.now(), createdAt: new Date() };
-  const result = await db.insert(enquiries).values(input);
-  return { id: Number(result[0].insertId), ...input };
+  const result = await db.insert(enquiries).values(input).returning({ id: enquiries.id });
+  return { id: Number(result[0].id), ...input };
 }
 
 export async function updateEnquiryStatus(id: number, status: string) {
