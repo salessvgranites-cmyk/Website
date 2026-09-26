@@ -40,6 +40,7 @@ export const siteContent = pgTable("siteContent", {
   facilityCopy: text("facilityCopy").default("A state-of-the-art facility with advanced machinery and a skilled team, ensuring precision at every stage."),
   bannerImage: text("bannerImage").default("/images/monument-headstone.jpg"),
   mapsUrl: text("mapsUrl").default(""),
+  googleSheetUrl: text("googleSheetUrl").default(""),
   productsEyebrow: text("productsEyebrow").default("OUR PRODUCTS"),
   productsTitle: text("productsTitle").default("Crafted for Lasting Impressions"),
   productsCopy: text("productsCopy").default("From monumental structures to elegant accessories, our granite products are designed to meet the highest standards of quality and durability."),

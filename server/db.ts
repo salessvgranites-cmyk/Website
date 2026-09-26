@@ -3,7 +3,7 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { InsertUser, collections, enquiries, finishes, gallery, products, sectionVisibility, siteContent, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
-import { appendEnquiryToGoogleSheet } from "./googleSheets";
+import { appendEnquiryToGoogleSheet, deleteEnquiryFromGoogleSheet, fetchEnquiriesFromGoogleSheet } from "./googleSheets";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -367,6 +367,104 @@ export async function updateEnquiryStatus(id: number, status: string) {
   const db = await getDb(); if (!db) return null;
   await db.update(enquiries).set({ status }).where(eq(enquiries.id, id));
   return true;
+}
+
+export async function deleteEnquiry(id: number) {
+  const db = await getDb(); if (!db) return { success: false };
+  // Get enquiry info first to delete from Google Sheets
+  const rows = await db.select().from(enquiries).where(eq(enquiries.id, id)).limit(1);
+  const target = rows[0];
+  let sheetResult: { syncedToSheet: boolean; reason?: string } = { syncedToSheet: false, reason: "not_found" };
+  if (target) {
+    sheetResult = await deleteEnquiryFromGoogleSheet({
+      id: target.id,
+      name: target.name,
+      email: target.email,
+      phone: target.phone,
+      timestamp: target.createdAt,
+    }).catch(err => {
+      console.error("[Google Sheets] Async delete error:", err);
+      return { syncedToSheet: false, reason: err.message };
+    });
+  }
+  await db.delete(enquiries).where(eq(enquiries.id, id));
+  return { success: true, sheetResult };
+}
+
+export async function deleteEnquiriesBulk(ids: number[]) {
+  const db = await getDb(); if (!db) return { success: false, count: 0, sheetSuccessCount: 0 };
+  let count = 0;
+  let sheetSuccessCount = 0;
+  for (const id of ids) {
+    const res = await deleteEnquiry(id);
+    if (res.success) {
+      count++;
+      if (res.sheetResult?.syncedToSheet) {
+        sheetSuccessCount++;
+      }
+    }
+  }
+  return { success: true, count, sheetSuccessCount };
+}
+
+export async function syncEnquiriesFromGoogleSheet(customUrl?: string) {
+  const db = await getDb(); if (!db) throw new Error("Database not connected");
+  
+  let url = customUrl;
+  if (!url) {
+    const content = await getSiteContent();
+    if (content?.googleSheetUrl) {
+      url = content.googleSheetUrl;
+    }
+  }
+
+  const sheetItems = await fetchEnquiriesFromGoogleSheet(url);
+  if (!sheetItems || sheetItems.length === 0) {
+    return { success: true, count: 0, added: 0, updated: 0, message: "No rows found in sheet" };
+  }
+
+  const existingEnquiries = await db.select().from(enquiries);
+  let added = 0;
+  let updated = 0;
+
+  for (const item of sheetItems) {
+    const itemEmail = item.email.toLowerCase().trim();
+    const itemPhone = item.phone.replace(/\D/g, "");
+    const itemName = item.name.toLowerCase().trim();
+
+    // Match by email OR (phone AND name)
+    const existing = existingEnquiries.find(e => {
+      const eEmail = e.email.toLowerCase().trim();
+      const ePhone = e.phone.replace(/\D/g, "");
+      const eName = e.name.toLowerCase().trim();
+
+      if (eEmail && itemEmail && eEmail !== "no-email@client.com" && eEmail === itemEmail) return true;
+      if (ePhone && itemPhone && ePhone === itemPhone && eName === itemName) return true;
+      return false;
+    });
+
+    if (existing) {
+      // Update status if it changed
+      if (item.status && item.status !== existing.status) {
+        await db.update(enquiries).set({ status: item.status }).where(eq(enquiries.id, existing.id));
+        updated++;
+      }
+    } else {
+      // Insert new enquiry
+      await db.insert(enquiries).values({
+        name: item.name,
+        email: item.email,
+        phone: item.phone,
+        projectType: item.projectType,
+        message: item.message,
+        status: item.status || "new",
+        createdAt: item.createdAt ? new Date(item.createdAt) : new Date(),
+      });
+      added++;
+    }
+  }
+
+  return { success: true, count: sheetItems.length, added, updated };
 }
 
 // --- Reordering ---

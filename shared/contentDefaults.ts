@@ -25,6 +25,7 @@ export const DEFAULT_CONTENT = {
   facilityCopy: "A state-of-the-art facility with advanced machinery and a skilled team, ensuring precision at every stage.",
   bannerImage: "/images/monument-headstone.jpg",
   mapsUrl: "",
+  googleSheetUrl: "",
   productsEyebrow: "OUR PRODUCTS",
   productsTitle: "Crafted for Lasting Impressions",
   productsCopy: "From monumental structures to elegant accessories, our granite products are designed to meet the highest standards of quality and durability.",

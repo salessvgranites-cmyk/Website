@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
-  AlertTriangle, ArrowDown, ArrowUp, ArrowUpRight, Check, ChevronLeft, ChevronRight, ExternalLink,
-  Eye, EyeOff, Grid3X3, Image as ImageIcon, Inbox, LayoutDashboard, Loader2,
-  LogOut, Palette, Plus, Save, Sparkles, Star, Trash2, Upload, X, Layers
+  AlertTriangle, ArrowDown, ArrowUp, ArrowUpRight, ArrowRight, Calendar, Check, ChevronDown, ChevronLeft, ChevronRight, Copy, ExternalLink,
+  Eye, EyeOff, FileSpreadsheet, Filter, Grid3X3, HelpCircle, Image as ImageIcon, Inbox, LayoutDashboard, Loader2,
+  LogOut, Mail, MessageSquare, Palette, Phone, Plus, RefreshCw, Save, Search, Sparkles, Star, Trash2, Upload, X, Layers
 } from "lucide-react";
 import { toast } from "sonner";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -289,6 +289,7 @@ const FALLBACK_CONTENT = {
   facilityCopy: "A state-of-the-art facility with advanced machinery and a skilled team, ensuring precision at every stage.",
   bannerImage: "/images/monument-headstone.jpg",
   mapsUrl: "",
+  googleSheetUrl: "",
   productsEyebrow: "OUR PRODUCTS",
   productsTitle: "Crafted for Lasting Impressions",
   productsCopy: "From monumental structures to elegant accessories, our granite products are designed to meet the highest standards of quality and durability.",
@@ -492,7 +493,14 @@ export default function Admin() {
         )}
 
         {activeTab === "enquiries" && (
-          <EnquiriesTab enquiries={enquiries} isLoading={enquiriesQuery.isLoading} onRefresh={enquiriesQuery.refetch} />
+          <EnquiriesTab
+            enquiries={enquiries}
+            isLoading={enquiriesQuery.isLoading}
+            onRefresh={enquiriesQuery.refetch}
+            content={content}
+            setField={setField}
+            onSaveContent={() => saveContent.mutate(content)}
+          />
         )}
       </div>
     </DashboardLayout>
@@ -501,6 +509,8 @@ export default function Admin() {
 
 // ─── Overview ─────────────────────────────────────────────────────────────────
 function Overview({ content, collections, gallery, products, finishes, sections, enquiries, setActiveTab }: any) {
+  const newEnquiriesCount = enquiries.filter((e: any) => e.status === "new").length;
+
   return (
     <section className="admin-section">
       <div className="overview-hero">
@@ -513,13 +523,49 @@ function Overview({ content, collections, gallery, products, finishes, sections,
         </div>
         <div className="overview-mark"><span>SV</span></div>
       </div>
+
+      {/* Prominent Golden Alert Banner for New Enquiries */}
+      {newEnquiriesCount > 0 && (
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-2xl border border-[#d4af37]/60 bg-gradient-to-r from-[#d4af37]/20 via-[#d4af37]/10 to-[#13161b] p-5 shadow-[0_0_30px_rgba(212,175,55,0.18)]">
+          <div className="flex items-center gap-3.5">
+            <span className="relative flex h-3.5 w-3.5 shrink-0">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#d4af37] opacity-80"></span>
+              <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-[#d4af37]"></span>
+            </span>
+            <div>
+              <div className="font-semibold text-white text-base flex items-center gap-2">
+                <span>{newEnquiriesCount} New Customer {newEnquiriesCount === 1 ? "Enquiry" : "Enquiries"} Received</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-[#d4af37] text-black px-2 py-0.5 rounded-full shadow-sm">Action Needed</span>
+              </div>
+              <div className="text-xs text-stone-300 mt-1">
+                New submissions from your website and Google Sheets are waiting for your review.
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => setActiveTab("enquiries")}
+            className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-[#d4af37] px-4 py-2.5 text-xs font-bold text-black hover:bg-[#dec083] transition-all shadow-md hover:shadow-[0_0_15px_rgba(212,175,55,0.4)] shrink-0"
+          >
+            Review Enquiries <ArrowRight className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
+
       <div className="overview-grid">
         <Stat label="Products" value={products.length} note="In catalogue" icon={Layers} onClick={() => setActiveTab("products")} />
         <Stat label="Collections" value={collections.length} note="Stone varieties" icon={Sparkles} onClick={() => setActiveTab("collections")} />
         <Stat label="Finishes" value={finishes.length} note="Surface textures" icon={Star} onClick={() => setActiveTab("finishes")} />
         <Stat label="Gallery" value={gallery.length} note="Photos on display" icon={ImageIcon} onClick={() => setActiveTab("gallery")} />
         <Stat label="Sections" value={sections.length} note="Website sections" icon={Grid3X3} onClick={() => setActiveTab("sections")} />
-        <Stat label="Enquiries" value={enquiries.length} note={`${enquiries.filter((e: any) => e.status === "new").length} new`} icon={Inbox} onClick={() => setActiveTab("enquiries")} />
+        <Stat
+          label="Enquiries"
+          value={enquiries.length}
+          note={newEnquiriesCount > 0 ? `${newEnquiriesCount} new to review` : "All caught up"}
+          icon={Inbox}
+          onClick={() => setActiveTab("enquiries")}
+          isHighlighted={newEnquiriesCount > 0}
+          highlightBadge={newEnquiriesCount > 0 ? `${newEnquiriesCount} NEW` : undefined}
+        />
       </div>
     </section>
   );
@@ -636,6 +682,17 @@ function BrandTab({ content, setField, saving, isDirty, onSave, onImageUploaded 
             />
             <span className="text-[11px] text-stone-400 font-normal normal-case -mt-1">
               If provided, clicking the address on the website opens this exact pin/map link. If left empty, it opens the address text on Google Maps automatically.
+            </span>
+          </label>
+          <label className="admin-field full">
+            <span>Google Sheet URL or Webhook Link (Optional)</span>
+            <Input
+              placeholder="e.g. https://docs.google.com/spreadsheets/d/.../edit or Google Apps Script URL"
+              value={content.googleSheetUrl ?? ""}
+              onChange={e => setField("googleSheetUrl", e.target.value)}
+            />
+            <span className="text-[11px] text-stone-400 font-normal normal-case -mt-1">
+              Used in the Enquiries tab to sync client enquiries directly from your Google Sheet into the Admin Dashboard.
             </span>
           </label>
         </div>
@@ -1377,41 +1434,979 @@ function SectionsTab({ sections, isLoading, onRefresh }: any) {
   );
 }
 
+// ─── Status Filter Dropdown Component ──────────────────────────────────────────
+function StatusFilterDropdown({
+  value,
+  onChange,
+  totalCount,
+  newCount,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+  totalCount: number;
+  newCount: number;
+}) {
+  const [open, setOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [open]);
+
+  const toggle = () => {
+    if (!open && ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setDropUp(spaceBelow < 200);
+    }
+    setOpen(!open);
+  };
+
+  const options = [
+    { id: "all", label: `All Statuses (${totalCount})`, dot: "bg-stone-400" },
+    { id: "new", label: `New (${newCount})`, dot: "bg-[#d4af37]", textClass: "text-[#d4af37]" },
+    { id: "in-progress", label: "In Progress", dot: "bg-blue-400", textClass: "text-blue-300" },
+    { id: "closed", label: "Closed", dot: "bg-stone-500", textClass: "text-stone-300" },
+  ];
+
+  const current = options.find((o) => o.id === value) || options[0];
+
+  return (
+    <div className="relative inline-block text-left" ref={ref}>
+      <button
+        type="button"
+        onClick={toggle}
+        className={`cursor-pointer inline-flex items-center gap-2 rounded-xl bg-[#14171d] hover:bg-[#1a1e26] border px-3 py-1.5 text-xs font-medium text-stone-200 transition-all shadow-sm ${
+          open ? "border-[#d4af37] ring-2 ring-[#d4af37]/20" : "border-white/10 hover:border-[#d4af37]/40"
+        }`}
+      >
+        <span className={`h-2 w-2 rounded-full ${current.dot}`}></span>
+        <span className="font-semibold text-white">{current.label}</span>
+        <ChevronDown className={`h-3.5 w-3.5 text-stone-400 transition-transform ${open ? "rotate-180 text-[#d4af37]" : ""}`} />
+      </button>
+
+      {open && (
+        <div
+          className={`absolute right-0 z-50 w-48 rounded-xl border border-[#d4af37]/40 bg-[#161a22] p-1.5 shadow-2xl shadow-black/90 backdrop-blur-md animate-in fade-in-0 zoom-in-95 ${
+            dropUp ? "bottom-full mb-1.5" : "top-full mt-1.5"
+          }`}
+        >
+          <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-stone-500">
+            Filter Status
+          </div>
+          {options.map((opt) => {
+            const isSelected = opt.id === value;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => {
+                  onChange(opt.id);
+                  setOpen(false);
+                }}
+                className={`cursor-pointer w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${
+                  isSelected
+                    ? "bg-[#d4af37]/20 text-[#d4af37] font-bold"
+                    : "text-stone-300 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className={`h-2 w-2 rounded-full ${opt.dot}`}></span>
+                  <span className={opt.textClass || "text-stone-200"}>{opt.label}</span>
+                </div>
+                {isSelected && <Check className="h-3.5 w-3.5 text-[#d4af37] stroke-[3]" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Individual Enquiry Status Dropdown ─────────────────────────────────────────
+function EnquiryStatusDropdown({
+  status,
+  onChange,
+  disabled,
+}: {
+  status: string;
+  onChange: (newStatus: string) => void;
+  disabled?: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    if (open) {
+      document.addEventListener("mousedown", handleClickOutside);
+      return () => document.removeEventListener("mousedown", handleClickOutside);
+    }
+  }, [open]);
+
+  const toggle = () => {
+    if (!open && ref.current) {
+      const rect = ref.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      setDropUp(spaceBelow < 170);
+    }
+    setOpen(!open);
+  };
+
+  const statusConfigs: Record<string, { label: string; dot: string; textColor: string }> = {
+    new: { label: "New", dot: "bg-[#d4af37]", textColor: "text-[#d4af37]" },
+    "in-progress": { label: "In Progress", dot: "bg-blue-400", textColor: "text-blue-300" },
+    closed: { label: "Closed", dot: "bg-stone-400", textColor: "text-stone-300" },
+  };
+
+  const current = statusConfigs[status] || statusConfigs.new;
+
+  const options = [
+    { id: "new", label: "New", dot: "bg-[#d4af37]", textColor: "text-[#d4af37]" },
+    { id: "in-progress", label: "In Progress", dot: "bg-blue-400", textColor: "text-blue-300" },
+    { id: "closed", label: "Closed", dot: "bg-stone-400", textColor: "text-stone-300" },
+  ];
+
+  return (
+    <div className="relative inline-block text-left" ref={ref}>
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={toggle}
+        className={`cursor-pointer inline-flex items-center justify-between gap-2 rounded-xl bg-[#14171d] hover:bg-[#1a1e26] border px-3 py-1.5 text-xs font-medium transition-all shadow-sm w-36 ${
+          open ? "border-[#d4af37] ring-2 ring-[#d4af37]/20" : "border-white/15 hover:border-[#d4af37]/50"
+        } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
+      >
+        <span className="flex items-center gap-2">
+          <span className={`h-2 w-2 rounded-full ${current.dot}`}></span>
+          <span className="font-semibold text-white">{current.label}</span>
+        </span>
+        <ChevronDown className={`h-3.5 w-3.5 text-stone-400 transition-transform ${open ? "rotate-180 text-[#d4af37]" : ""}`} />
+      </button>
+
+      {open && (
+        <div
+          className={`absolute right-0 z-50 w-36 rounded-xl border border-[#d4af37]/40 bg-[#161a22] p-1.5 shadow-2xl shadow-black/90 backdrop-blur-md animate-in fade-in-0 zoom-in-95 ${
+            dropUp ? "bottom-full mb-1.5" : "top-full mt-1.5"
+          }`}
+        >
+          {options.map((opt) => {
+            const isSelected = opt.id === status;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => {
+                  onChange(opt.id);
+                  setOpen(false);
+                }}
+                className={`cursor-pointer w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-medium flex items-center justify-between transition-colors ${
+                  isSelected
+                    ? "bg-[#d4af37]/20 text-[#d4af37] font-bold"
+                    : "text-stone-300 hover:bg-white/10 hover:text-white"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className={`h-2 w-2 rounded-full ${opt.dot}`}></span>
+                  <span className={opt.textColor}>{opt.label}</span>
+                </div>
+                {isSelected && <Check className="h-3.5 w-3.5 text-[#d4af37] stroke-[3]" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Enquiries Tab ────────────────────────────────────────────────────────────
-function EnquiriesTab({ enquiries, isLoading, onRefresh }: any) {
+function EnquiriesTab({ enquiries, isLoading, onRefresh, content, setField, onSaveContent }: any) {
+  const [dateFilter, setDateFilter] = useState<string>("all");
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [showScriptModal, setShowScriptModal] = useState<boolean>(false);
+  const [sheetInputUrl, setSheetInputUrl] = useState<string>(content?.googleSheetUrl || "");
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [showBulkDeleteModal, setShowBulkDeleteModal] = useState<boolean>(false);
+
   const updateEnquiry = trpc.admin.updateEnquiry.useMutation({
-    onSuccess: () => { toast.success("Status updated!"); onRefresh(); }
+    onSuccess: () => { toast.success("Status updated!"); onRefresh(); },
+    onError: (e) => toast.error(e.message),
   });
+
+  const deleteEnquiry = trpc.admin.deleteEnquiry.useMutation({
+    onSuccess: (res: any) => {
+      if (res?.sheetResult?.syncedToSheet) {
+        toast.success("Enquiry deleted from website and Google Sheet!");
+      } else if (res?.sheetResult?.reason === "script_not_updated") {
+        toast.success("Enquiry deleted from website! (Note: Update your Google Apps Script using the 'Setup Guide' to delete rows from Google Sheet as well)");
+      } else {
+        toast.success("Enquiry deleted!");
+      }
+      setSelectedIds((prev) => prev.filter((id) => id !== res?.deletedId));
+      onRefresh();
+    },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const deleteEnquiriesBulk = trpc.admin.deleteEnquiriesBulk.useMutation({
+    onSuccess: (res: any) => {
+      if (res?.sheetSuccessCount > 0) {
+        toast.success(`Deleted ${res.count} enquiries from website and Google Sheet!`);
+      } else {
+        toast.success(`Deleted ${res.count} enquiries!`);
+      }
+      setSelectedIds([]);
+      setShowBulkDeleteModal(false);
+      onRefresh();
+    },
+    onError: (e) => toast.error(e.message || "Failed to delete enquiries"),
+  });
+
+  const syncSheet = trpc.admin.syncFromGoogleSheet.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Google Sheet Synced! ${data.count} enquiries processed (${data.added} new, ${data.updated} updated).`);
+      onRefresh();
+    },
+    onError: (e) => toast.error(e.message || "Failed to sync from Google Sheet"),
+  });
+
+  const handleFetchFromSheet = () => {
+    syncSheet.mutate({ sheetUrl: sheetInputUrl.trim() || content?.googleSheetUrl || undefined });
+  };
+
+  const handleDelete = (item: any) => {
+    if (window.confirm(`Delete enquiry from "${item.name}"?\n\nThis will permanently delete it from the website and update your Google Sheet.`)) {
+      deleteEnquiry.mutate({ id: item.id });
+    }
+  };
+
+  // Filter inquiries based on Date, Status, and Search
+  const filteredEnquiries = useMemo(() => {
+    return enquiries.filter((item: any) => {
+      // 1. Status Filter
+      if (statusFilter !== "all" && item.status !== statusFilter) {
+        return false;
+      }
+
+      // 2. Search Filter
+      if (searchQuery.trim() !== "") {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesName = item.name?.toLowerCase().includes(q);
+        const matchesEmail = item.email?.toLowerCase().includes(q);
+        const matchesPhone = item.phone?.toLowerCase().includes(q);
+        const matchesType = item.projectType?.toLowerCase().includes(q);
+        const matchesMsg = item.message?.toLowerCase().includes(q);
+        if (!matchesName && !matchesEmail && !matchesPhone && !matchesType && !matchesMsg) {
+          return false;
+        }
+      }
+
+      // 3. Date Filter
+      if (dateFilter !== "all") {
+        const itemDate = new Date(item.createdAt);
+        const now = new Date();
+
+        if (dateFilter === "today") {
+          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          if (itemDate < startOfToday) return false;
+        } else if (dateFilter === "yesterday") {
+          const startOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+          const endOfYesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          if (itemDate < startOfYesterday || itemDate >= endOfYesterday) return false;
+        } else if (dateFilter === "7days") {
+          const past7 = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+          if (itemDate < past7) return false;
+        } else if (dateFilter === "30days") {
+          const past30 = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+          if (itemDate < past30) return false;
+        } else if (dateFilter === "month") {
+          if (itemDate.getMonth() !== now.getMonth() || itemDate.getFullYear() !== now.getFullYear()) {
+            return false;
+          }
+        } else if (dateFilter === "custom") {
+          if (startDate) {
+            const start = new Date(startDate);
+            if (itemDate < start) return false;
+          }
+          if (endDate) {
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            if (itemDate > end) return false;
+          }
+        }
+      }
+
+      return true;
+    });
+  }, [enquiries, statusFilter, searchQuery, dateFilter, startDate, endDate]);
+
+  const newCount = enquiries.filter((e: any) => e.status === "new").length;
+  const isFiltered = statusFilter !== "all" || searchQuery !== "" || dateFilter !== "all";
+
+  // Filter-aware selection logic
+  const filteredIds = useMemo(() => filteredEnquiries.map((e: any) => e.id), [filteredEnquiries]);
+  const isAllFilteredSelected = filteredIds.length > 0 && filteredIds.every((id: number) => selectedIds.includes(id));
+  const isSomeFilteredSelected = filteredIds.some((id: number) => selectedIds.includes(id)) && !isAllFilteredSelected;
+
+  const handleToggleSelectAll = () => {
+    if (isAllFilteredSelected) {
+      // Deselect filtered enquiries
+      setSelectedIds((prev) => prev.filter((id) => !filteredIds.includes(id)));
+    } else {
+      // Select ONLY the enquiries matching current filter
+      setSelectedIds(filteredIds);
+    }
+  };
+
+  const handleToggleRow = (id: number) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    );
+  };
+
+  const appsScriptCode = `// Sri Venkateswara Granites - Two-Way Google Apps Script
+function doGet(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var rows = sheet.getDataRange().getValues();
+  if (rows.length <= 1) {
+    return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+  }
+  var headers = rows[0].map(function(h) { return String(h).toLowerCase().trim(); });
+  var result = [];
+  for (var i = 1; i < rows.length; i++) {
+    var row = rows[i];
+    if (!row || row.join("").trim() === "") continue;
+    var item = {};
+    for (var j = 0; j < headers.length; j++) {
+      item[headers[j]] = row[j];
+    }
+    result.push(item);
+  }
+  return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  var data = {};
+  try {
+    data = JSON.parse(e.postData.contents);
+  } catch (err) {
+    data = e.parameter || {};
+  }
+
+  // DELETE ACTION: Removes the row from Google Sheet
+  if (data.action === "delete") {
+    var rows = sheet.getDataRange().getValues();
+    for (var i = rows.length - 1; i >= 1; i--) {
+      var row = rows[i];
+      var rowEmail = String(row[2] || "").toLowerCase().trim();
+      var rowPhone = String(row[3] || "").replace(/\\D/g, "");
+      var targetEmail = String(data.email || "").toLowerCase().trim();
+      var targetPhone = String(data.phone || "").replace(/\\D/g, "");
+
+      if ((targetEmail && rowEmail === targetEmail) || (targetPhone && rowPhone === targetPhone)) {
+        sheet.deleteRow(i + 1);
+        break;
+      }
+    }
+    return ContentService.createTextOutput(JSON.stringify({ status: "success", action: "deleted" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  // READ ACTION (via POST)
+  if (data.action === "read" || data.action === "fetch") {
+    return doGet(e);
+  }
+
+  // DEFAULT: Append new enquiry from website
+  var timestamp = data.timestamp || new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
+  sheet.appendRow([
+    timestamp,
+    data.name || "",
+    data.email || "",
+    data.phone || "",
+    data.projectType || "",
+    data.message || "",
+    data.status || "new"
+  ]);
+
+  return ContentService.createTextOutput(JSON.stringify({ status: "success" }))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
 
   return (
     <section className="admin-section">
-      <SectionHeading eyebrow="Enquiries" title="Conversations worth following up." description="A working inbox for every new project request from the public site." />
-      {isLoading ? (
-        <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-[#d4af37]" /></div>
-      ) : (
-        <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#13161b]">
-          {enquiries.length ? enquiries.map((item: any) => (
-            <div key={item.id} className="enquiry-row">
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-3">
-                  <span className="font-medium text-white">{item.name}</span>
-                  <Badge className={item.status === "new" ? "status-new" : "status-progress"}>{item.status}</Badge>
-                </div>
-                <div className="mt-2 text-sm text-stone-400">{item.projectType} · {item.phone} · {item.email}</div>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-stone-300">{item.message}</p>
-              </div>
-              <select className="admin-select w-36" value={item.status} onChange={e => updateEnquiry.mutate({ id: item.id, status: e.target.value })}>
-                <option value="new">New</option>
-                <option value="in-progress">In progress</option>
-                <option value="closed">Closed</option>
-              </select>
+      <SectionHeading
+        eyebrow="Enquiries & CRM"
+        title="Conversations worth following up."
+        description="A working inbox for every new project request from your website and Google Sheet."
+      />
+
+      {/* Google Sheets Synchronisation Control Bar */}
+      <div className="mb-6 rounded-2xl border border-white/10 bg-[#13161b] p-5 shadow-sm">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+              <FileSpreadsheet className="h-5 w-5" />
             </div>
-          )) : (
-            <div className="empty-state">
-              <Inbox className="h-7 w-7 text-[#d4af37]" />
-              <div><div className="font-cinzel text-2xl font-bold text-white">No enquiries yet.</div><p className="mt-1 text-sm text-stone-400">When a visitor reaches out, it will appear here.</p></div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-semibold text-white text-sm">Google Sheets Integration</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                  Active
+                </span>
+              </div>
+              <p className="text-xs text-stone-400 mt-0.5">
+                All website submissions are automatically logged to Google Sheets. You can also fetch updates made directly in your sheet.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              onClick={handleFetchFromSheet}
+              disabled={syncSheet.isPending}
+              className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-[#d4af37] px-4 py-2.5 text-xs font-bold text-black hover:bg-[#dec083] transition-all shadow-sm disabled:opacity-50"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${syncSheet.isPending ? "animate-spin" : ""}`} />
+              {syncSheet.isPending ? "Syncing..." : "Fetch from Google Sheet"}
+            </button>
+            <button
+              onClick={() => setShowScriptModal(true)}
+              className="cursor-pointer inline-flex items-center gap-1.5 rounded-xl bg-white/5 border border-white/10 px-3.5 py-2.5 text-xs font-medium text-stone-300 hover:bg-white/10 transition-colors"
+            >
+              <HelpCircle className="h-3.5 w-3.5 text-[#d4af37]" />
+              Setup Guide & Script
+            </button>
+          </div>
+        </div>
+
+        {/* Optional Google Sheet Link override */}
+        <div className="mt-4 pt-4 border-t border-white/5 flex flex-col sm:flex-row items-center gap-3">
+          <span className="text-xs text-stone-400 shrink-0">Google Sheet URL:</span>
+          <Input
+            value={sheetInputUrl}
+            onChange={(e) => {
+              setSheetInputUrl(e.target.value);
+              setField?.("googleSheetUrl", e.target.value);
+            }}
+            placeholder="Paste your Google Sheet link (e.g. https://docs.google.com/spreadsheets/d/.../edit)"
+            className="bg-black/30 border-white/10 text-xs h-9 text-stone-200"
+          />
+          {onSaveContent && (
+            <button
+              onClick={onSaveContent}
+              className="cursor-pointer shrink-0 text-xs bg-white/10 hover:bg-white/15 px-3 py-2 rounded-lg text-white font-medium transition-colors"
+            >
+              Save Link
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Filter Options Bar: Date, Status, Search */}
+      <div className="mb-6 rounded-2xl border border-white/10 bg-[#13161b] p-4 space-y-4">
+        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+          
+          {/* Search box */}
+          <div className="relative w-full lg:w-72">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+            <Input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search name, phone, email, project..."
+              className="pl-9 bg-black/30 border-white/10 text-xs h-9 text-white placeholder:text-stone-500"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-white text-xs cursor-pointer"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Date Filter presets */}
+          <div className="flex flex-wrap items-center gap-1.5 w-full lg:w-auto">
+            <span className="text-xs text-stone-400 mr-1 flex items-center gap-1">
+              <Calendar className="h-3.5 w-3.5 text-[#d4af37]" /> Date:
+            </span>
+            {[
+              { id: "all", label: "All Time" },
+              { id: "today", label: "Today" },
+              { id: "yesterday", label: "Yesterday" },
+              { id: "7days", label: "Last 7 Days" },
+              { id: "30days", label: "Last 30 Days" },
+              { id: "month", label: "This Month" },
+              { id: "custom", label: "Custom Range" },
+            ].map((p) => (
+              <button
+                key={p.id}
+                onClick={() => setDateFilter(p.id)}
+                className={`cursor-pointer px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                  dateFilter === p.id
+                    ? "bg-[#d4af37] text-black font-semibold shadow-sm"
+                    : "bg-white/5 hover:bg-white/10 text-stone-300"
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Custom Status Filter Dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-stone-400 flex items-center gap-1">
+              <Filter className="h-3.5 w-3.5 text-[#d4af37]" /> Status:
+            </span>
+            <StatusFilterDropdown
+              value={statusFilter}
+              onChange={(val) => setStatusFilter(val)}
+              totalCount={enquiries.length}
+              newCount={newCount}
+            />
+          </div>
+        </div>
+
+        {/* Custom Date Range Picker inputs when 'custom' is active */}
+        {dateFilter === "custom" && (
+          <div className="pt-3 border-t border-white/5 flex flex-wrap items-center gap-3">
+            <span className="text-xs text-stone-300 font-medium">Custom Range:</span>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-stone-400">From:</span>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="bg-black/40 border-white/10 text-xs h-8 w-36 text-white"
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-stone-400">To:</span>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="bg-black/40 border-white/10 text-xs h-8 w-36 text-white"
+              />
+            </div>
+            {(startDate || endDate) && (
+              <button
+                onClick={() => { setStartDate(""); setEndDate(""); }}
+                className="cursor-pointer text-[11px] text-stone-400 hover:text-white underline ml-2"
+              >
+                Clear dates
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Results summary bar with Select All */}
+        <div className="pt-2 border-t border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs text-stone-400">
+          <div className="flex items-center gap-3">
+            {filteredEnquiries.length > 0 && (
+              <button
+                type="button"
+                onClick={handleToggleSelectAll}
+                className="cursor-pointer inline-flex items-center gap-2 text-xs font-semibold text-stone-300 hover:text-white transition-colors"
+                title={isAllFilteredSelected ? "Deselect all in current filter" : "Select all in current filter"}
+              >
+                <span
+                  className={`h-4 w-4 rounded border flex items-center justify-center transition-all ${
+                    isAllFilteredSelected
+                      ? "bg-[#d4af37] border-[#d4af37] text-black shadow-sm"
+                      : isSomeFilteredSelected
+                      ? "bg-[#d4af37]/30 border-[#d4af37] text-white"
+                      : "border-white/30 bg-white/5 hover:border-[#d4af37]/60"
+                  }`}
+                >
+                  {isAllFilteredSelected ? (
+                    <Check className="h-3 w-3 stroke-[3]" />
+                  ) : isSomeFilteredSelected ? (
+                    <span className="h-0.5 w-2 bg-[#d4af37]"></span>
+                  ) : null}
+                </span>
+                <span>
+                  Select All ({filteredEnquiries.length}
+                  {isFiltered ? " filtered" : ""})
+                </span>
+              </button>
+            )}
+            {filteredEnquiries.length > 0 && <span className="text-stone-600">|</span>}
+            <div>
+              Showing <span className="text-white font-semibold">{filteredEnquiries.length}</span> of {enquiries.length} enquiries
+              {newCount > 0 && (
+                <span className="ml-2 text-[#d4af37] font-semibold">({newCount} pending review)</span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {selectedIds.length > 0 && (
+              <span className="text-[#d4af37] font-semibold text-xs bg-[#d4af37]/15 px-2.5 py-0.5 rounded-full border border-[#d4af37]/30">
+                {selectedIds.length} selected
+              </span>
+            )}
+            {isFiltered && (
+              <button
+                onClick={() => {
+                  setDateFilter("all");
+                  setStartDate("");
+                  setEndDate("");
+                  setStatusFilter("all");
+                  setSearchQuery("");
+                }}
+                className="cursor-pointer text-xs text-[#d4af37] hover:underline"
+              >
+                Reset all filters
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Bulk Action Bar when enquiries are selected */}
+      {selectedIds.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#d4af37]/40 bg-[#d4af37]/10 p-3.5 px-5 shadow-lg shadow-black/40 animate-in fade-in-0 slide-in-from-top-2">
+          <div className="flex items-center gap-3">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#d4af37] text-xs font-bold text-black shadow">
+              {selectedIds.length}
+            </span>
+            <div>
+              <span className="text-sm font-bold text-white">
+                {selectedIds.length} Enquiry{selectedIds.length > 1 ? "ies" : ""} Selected
+              </span>
+              {isFiltered && (
+                <span className="ml-2 text-[11px] font-semibold text-[#dec083]">
+                  (from current filter)
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5">
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              className="cursor-pointer px-3 py-1.5 rounded-xl text-xs font-medium text-stone-300 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              Deselect All
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowBulkDeleteModal(true)}
+              className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs px-4 py-2 shadow-md shadow-red-950/50 transition-all hover:scale-[1.02]"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Delete Selected ({selectedIds.length})
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Enquiries List */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-[#d4af37]" />
+        </div>
+      ) : (
+        <div className="rounded-3xl border border-white/10 bg-[#13161b]">
+          {filteredEnquiries.length ? (
+            filteredEnquiries.map((item: any) => {
+              const isNew = item.status === "new";
+              const isSelected = selectedIds.includes(item.id);
+              const formattedDate = item.createdAt
+                ? new Date(item.createdAt).toLocaleString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })
+                : "Recent";
+
+              const cleanPhone = item.phone ? item.phone.replace(/\\D/g, "") : "";
+
+              return (
+                <div
+                  key={item.id}
+                  className={`enquiry-row transition-colors ${
+                    isSelected
+                      ? "bg-[#d4af37]/[0.08] border-l-4 border-l-[#d4af37]"
+                      : isNew
+                      ? "border-l-4 border-l-[#d4af37] bg-[#d4af37]/[0.03]"
+                      : ""
+                  }`}
+                >
+                  {/* Row Checkbox */}
+                  <div className="pt-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => handleToggleRow(item.id)}
+                      className={`cursor-pointer h-5 w-5 rounded-md border flex items-center justify-center transition-all ${
+                        isSelected
+                          ? "bg-[#d4af37] border-[#d4af37] text-black shadow-sm"
+                          : "border-white/20 bg-white/5 hover:border-[#d4af37]/60 hover:bg-[#d4af37]/10 text-transparent"
+                      }`}
+                      title={isSelected ? "Deselect enquiry" : "Select enquiry"}
+                    >
+                      <Check className={`h-3.5 w-3.5 stroke-[3] ${isSelected ? "opacity-100" : "opacity-0"}`} />
+                    </button>
+                  </div>
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-3">
+                      <span className="font-semibold text-white text-base">{item.name}</span>
+                      {isNew ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-[#d4af37]/20 text-[#d4af37] border border-[#d4af37]/40 shadow-sm animate-pulse">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#d4af37]"></span> NEW
+                        </span>
+                      ) : (
+                        <Badge className={item.status === "in-progress" ? "bg-blue-500/20 text-blue-300 border-blue-500/30" : "bg-stone-500/20 text-stone-300 border-stone-500/30"}>
+                          {item.status === "in-progress" ? "In progress" : "Closed"}
+                        </Badge>
+                      )}
+                      <span className="text-xs text-stone-400 flex items-center gap-1">
+                        <Calendar className="h-3 w-3 text-stone-500" />
+                        {formattedDate}
+                      </span>
+                    </div>
+
+                    <div className="mt-2.5 flex flex-wrap items-center gap-3 text-xs text-stone-300">
+                      <span className="bg-white/5 border border-white/10 px-2 py-0.5 rounded-md font-medium text-stone-200">
+                        {item.projectType || "General Requirement"}
+                      </span>
+                      {item.phone && (
+                        <a
+                          href={`tel:${item.phone}`}
+                          className="hover:text-[#d4af37] transition-colors flex items-center gap-1 text-stone-300"
+                          title="Call phone"
+                        >
+                          <Phone className="h-3 w-3 text-[#d4af37]" /> {item.phone}
+                        </a>
+                      )}
+                      {cleanPhone && (
+                        <a
+                          href={`https://wa.me/${cleanPhone}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="hover:text-emerald-400 text-stone-400 transition-colors flex items-center gap-1"
+                          title="Chat on WhatsApp"
+                        >
+                          <MessageSquare className="h-3 w-3 text-emerald-400" /> WhatsApp
+                        </a>
+                      )}
+                      {item.email && (
+                        <a
+                          href={`mailto:${item.email}`}
+                          className="hover:text-[#d4af37] transition-colors flex items-center gap-1 text-stone-300"
+                          title="Send Email"
+                        >
+                          <Mail className="h-3 w-3 text-[#d4af37]" /> {item.email}
+                        </a>
+                      )}
+                    </div>
+
+                    <p className="mt-3 max-w-3xl text-sm leading-6 text-stone-300 bg-white/[0.02] p-3 rounded-xl border border-white/5">
+                      {item.message}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 shrink-0">
+                    {/* Custom Luxury Status Dropdown */}
+                    <EnquiryStatusDropdown
+                      status={item.status}
+                      onChange={(newStatus) => updateEnquiry.mutate({ id: item.id, status: newStatus })}
+                      disabled={updateEnquiry.isPending}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(item)}
+                      disabled={deleteEnquiry.isPending}
+                      className="cursor-pointer h-9 w-9 flex items-center justify-center rounded-xl bg-red-950/20 border border-red-500/20 text-red-400 hover:bg-red-950/60 hover:text-red-300 transition-colors"
+                      title="Delete enquiry and update Google Sheet"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <div className="empty-state py-16">
+              <Inbox className="h-8 w-8 text-[#d4af37]" />
+              <div>
+                <div className="font-cinzel text-2xl font-bold text-white">
+                  {isFiltered ? "No enquiries match your filter." : "No enquiries yet."}
+                </div>
+                <p className="mt-1 text-sm text-stone-400">
+                  {isFiltered
+                    ? "Try adjusting your date range or search keywords."
+                    : "When a visitor submits an enquiry or you sync from Google Sheets, it will appear here."}
+                </p>
+              </div>
+              {isFiltered && (
+                <button
+                  onClick={() => {
+                    setDateFilter("all");
+                    setStartDate("");
+                    setEndDate("");
+                    setStatusFilter("all");
+                    setSearchQuery("");
+                  }}
+                  className="mt-3 cursor-pointer text-xs font-semibold text-[#d4af37] underline"
+                >
+                  Clear filters
+                </button>
+              )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showBulkDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in-0">
+          <div className="relative w-full max-w-md rounded-2xl border border-red-500/30 bg-[#161a22] p-6 shadow-2xl shadow-black/90">
+            <div className="flex items-center gap-3 text-red-400 mb-3">
+              <div className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20">
+                <Trash2 className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-white">Delete {selectedIds.length} Enquiries?</h3>
+                <p className="text-xs text-stone-400">Batch deletion confirmation</p>
+              </div>
+            </div>
+            
+            <p className="text-xs text-stone-300 leading-relaxed mt-2">
+              Are you sure you want to permanently delete these <span className="text-white font-bold">{selectedIds.length}</span> selected enquiries?
+            </p>
+            
+            <div className="my-3 rounded-xl bg-black/40 border border-white/5 p-3 text-[11px] text-stone-400 space-y-1">
+              <div className="flex items-center gap-1.5 text-stone-300">
+                <Check className="h-3.5 w-3.5 text-emerald-400" /> Removed from Website Database
+              </div>
+              <div className="flex items-center gap-1.5 text-stone-300">
+                <Check className="h-3.5 w-3.5 text-emerald-400" /> Synced & Removed from Google Sheet
+              </div>
+            </div>
+
+            <p className="text-[11px] text-red-400/80">
+              Warning: This action cannot be undone.
+            </p>
+
+            <div className="mt-5 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                disabled={deleteEnquiriesBulk.isPending}
+                onClick={() => setShowBulkDeleteModal(false)}
+                className="cursor-pointer px-4 py-2 rounded-xl text-xs font-medium text-stone-300 hover:bg-white/10 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deleteEnquiriesBulk.isPending}
+                onClick={() => deleteEnquiriesBulk.mutate({ ids: selectedIds })}
+                className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-red-600 hover:bg-red-500 text-white font-semibold text-xs px-4 py-2 shadow-lg shadow-red-950/50 transition-colors disabled:opacity-50"
+              >
+                {deleteEnquiriesBulk.isPending ? (
+                  <>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    Deleting {selectedIds.length}...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Yes, Delete ({selectedIds.length})
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Google Apps Script Modal */}
+      {showScriptModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-white/10 bg-[#13161b] p-6 shadow-2xl">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center gap-2.5">
+                <FileSpreadsheet className="h-5 w-5 text-[#d4af37]" />
+                <h3 className="font-cinzel text-lg font-bold text-white">Google Sheet Apps Script Setup</h3>
+              </div>
+              <button
+                onClick={() => setShowScriptModal(false)}
+                className="cursor-pointer rounded-lg p-1.5 text-stone-400 hover:text-white"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-4 text-xs text-stone-300 leading-relaxed">
+              <p>
+                To enable <strong>two-way sync</strong> (reading enquiries from your sheet and deleting rows back in the sheet):
+              </p>
+              <ol className="list-decimal pl-5 space-y-1.5 text-stone-300">
+                <li>Open your Google Sheet where client enquiries are stored.</li>
+                <li>Click <strong>Extensions</strong> → <strong>Apps Script</strong>.</li>
+                <li>Replace all existing code in the editor with the script below.</li>
+                <li>Click <strong>Deploy</strong> → <strong>Manage deployments</strong> → <strong>Edit</strong> → choose <strong>New version</strong>.</li>
+                <li>Ensure access is set to <strong>"Anyone"</strong> and click <strong>Deploy</strong>.</li>
+              </ol>
+
+              <div className="relative">
+                <pre className="max-h-64 overflow-x-auto rounded-xl bg-black/60 p-4 font-mono text-[11px] text-[#dec083] border border-white/10">
+                  {appsScriptCode}
+                </pre>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(appsScriptCode);
+                    toast.success("Apps Script code copied to clipboard!");
+                  }}
+                  className="absolute top-3 right-3 cursor-pointer inline-flex items-center gap-1.5 rounded-lg bg-[#d4af37] px-3 py-1.5 text-[11px] font-bold text-black hover:bg-[#dec083] shadow"
+                >
+                  <Copy className="h-3 w-3" /> Copy Code
+                </button>
+              </div>
+
+              <div className="p-3 rounded-xl bg-[#d4af37]/10 border border-[#d4af37]/20 text-[11px] text-stone-300">
+                <strong>Alternative (Direct Read):</strong> You can also share your Google Sheet with "Anyone with the link can view", copy the sheet link from the browser bar, and paste it in the Google Sheet URL box above!
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={() => setShowScriptModal(false)}
+                className="cursor-pointer rounded-xl bg-white/10 hover:bg-white/15 px-4 py-2 text-xs font-semibold text-white transition-colors"
+              >
+                Done
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </section>
@@ -1419,20 +2414,39 @@ function EnquiriesTab({ enquiries, isLoading, onRefresh }: any) {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-function Stat({ label, value, note, icon: Icon, onClick }: any) {
+function Stat({ label, value, note, icon: Icon, onClick, isHighlighted, highlightBadge }: any) {
   return (
     <div
       onClick={onClick}
-      className="stat-card cursor-pointer group"
+      className={`stat-card cursor-pointer group transition-all duration-300 ${
+        isHighlighted
+          ? "border-[#d4af37] bg-gradient-to-b from-[#d4af37]/15 to-[#13161b] shadow-[0_0_25px_rgba(212,175,55,0.22)] ring-1 ring-[#d4af37]/50"
+          : ""
+      }`}
       title={`Go to ${label} tab`}
     >
       <div className="flex items-center justify-between">
-        <Icon className="h-5 w-5 text-[#d4af37] transition-transform duration-300 group-hover:scale-110" />
-        <ChevronRight className="h-3.5 w-3.5 text-white/20 transition-all duration-300 group-hover:text-[#d4af37] group-hover:translate-x-0.5" />
+        <div className="flex items-center gap-2">
+          <Icon className="h-5 w-5 text-[#d4af37] transition-transform duration-300 group-hover:scale-110" />
+          {isHighlighted && (
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#d4af37] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#d4af37]"></span>
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {highlightBadge && (
+            <span className="text-[10px] font-bold uppercase tracking-wider bg-[#d4af37] text-black px-2 py-0.5 rounded-full animate-pulse shadow-sm">
+              {highlightBadge}
+            </span>
+          )}
+          <ChevronRight className="h-3.5 w-3.5 text-white/20 transition-all duration-300 group-hover:text-[#d4af37] group-hover:translate-x-0.5" />
+        </div>
       </div>
       <div className="mt-5 font-cinzel text-4xl sm:text-5xl font-bold text-white group-hover:text-[#d4af37] transition-colors">{value}</div>
       <div className="mt-2 text-[10px] font-semibold uppercase tracking-[0.18em] text-stone-300">{label}</div>
-      <div className="mt-3 text-xs text-stone-500">{note}</div>
+      <div className={`mt-3 text-xs ${isHighlighted ? "text-[#d4af37] font-semibold" : "text-stone-500"}`}>{note}</div>
     </div>
   );
 }

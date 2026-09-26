@@ -195,17 +195,6 @@ export default function Home() {
         message: form.message,
       });
 
-      const webhookUrl = "https://script.google.com/macros/s/AKfycbxI1cQu_El0I6NJ5zdinyvMyrimMzMn6dgCxWfM-8Cc--6cpKTfTjbM_IOyb3E4qfEn/exec";
-      await fetch(webhookUrl, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          timestamp: new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
-        }),
-      });
-
       toast.success("Thank you for your enquiry. We will contact you shortly.");
       setForm({ name: "", email: "", phone: "", projectType: "", message: "" });
     } catch {

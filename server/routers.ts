@@ -13,6 +13,7 @@ import {
   toggleCollectionVisibility, toggleFinishVisibility, toggleGalleryVisibility, toggleProductVisibility,
   updateCollection, updateEnquiryStatus, updateFinish, updateGalleryItem, updateProduct,
   updateSectionVisibility, updateSiteContent,
+  deleteEnquiry, deleteEnquiriesBulk, syncEnquiriesFromGoogleSheet,
 } from "./db";
 
 const contentInput = z.object({
@@ -42,6 +43,7 @@ const contentInput = z.object({
   facilityCopy: z.string().nullish(),
   bannerImage: z.string().nullish(),
   mapsUrl: z.string().nullish(),
+  googleSheetUrl: z.string().nullish(),
   productsEyebrow: z.string().nullish(),
   productsTitle: z.string().nullish(),
   productsCopy: z.string().nullish(),
@@ -185,6 +187,9 @@ export const appRouter = router({
     // Enquiries
     enquiries: adminProcedure.query(getEnquiries),
     updateEnquiry: adminProcedure.input(z.object({ id: z.number().int(), status: z.string() })).mutation(({ input }) => updateEnquiryStatus(input.id, input.status)),
+    deleteEnquiry: adminProcedure.input(z.object({ id: z.number().int() })).mutation(({ input }) => deleteEnquiry(input.id)),
+    deleteEnquiriesBulk: adminProcedure.input(z.object({ ids: z.array(z.number().int()) })).mutation(({ input }) => deleteEnquiriesBulk(input.ids)),
+    syncFromGoogleSheet: adminProcedure.input(z.object({ sheetUrl: z.string().optional() })).mutation(({ input }) => syncEnquiriesFromGoogleSheet(input.sheetUrl)),
   }),
 });
 
