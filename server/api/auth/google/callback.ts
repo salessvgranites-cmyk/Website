@@ -1,45 +1,41 @@
+import type { IncomingMessage, ServerResponse } from "node:http";
 import { SignJWT } from "jose";
 import * as db from "../../../db";
 
 const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
 const COOKIE_NAME = "app_session_id";
 
-function getAppUrl(req: Request): string {
-  if (process.env.VITE_APP_URL) {
-    return process.env.VITE_APP_URL.replace(/\/+$/, "");
-  }
-  const host =
-    req.headers.get("x-forwarded-host") ||
-    req.headers.get("host") ||
-    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-    process.env.VERCEL_URL;
-
-  const proto =
-    req.headers.get("x-forwarded-proto") ||
-    (host?.includes("localhost") ? "http" : "https");
-
-  if (host) {
-    return `${proto}://${host}`;
-  }
-  return "http://localhost:3000";
-}
-
-export default async function handler(req: Request): Promise<Response> {
+/**
+ * Google OAuth callback handler — Vercel Node.js runtime.
+ *
+ * Exchanges the authorization code for tokens, verifies admin access,
+ * upserts the user, creates a JWT session cookie, and redirects to /admin.
+ */
+export default async function handler(
+  req: IncomingMessage,
+  res: ServerResponse
+) {
   const appUrl = getAppUrl(req);
-  const url = req.url.startsWith("http")
-    ? new URL(req.url)
-    : new URL(req.url, appUrl);
 
-  const code = url.searchParams.get("code");
-  const error = url.searchParams.get("error");
+  // Parse query string from the URL
+  const urlStr = req.url ?? "";
+  const queryString = urlStr.includes("?") ? urlStr.split("?")[1] : "";
+  const params = new URLSearchParams(queryString);
+
+  const code = params.get("code");
+  const error = params.get("error");
 
   if (error) {
     console.error("[Google OAuth Callback] Error from Google:", error);
-    return Response.redirect(`${appUrl}/?auth=error`, 302);
+    res.writeHead(302, { Location: `${appUrl}/?auth=error` });
+    res.end();
+    return;
   }
 
   if (!code) {
-    return new Response("Missing OAuth code", { status: 400 });
+    res.statusCode = 400;
+    res.end("Missing OAuth code");
+    return;
   }
 
   const clientId = process.env.GOOGLE_CLIENT_ID;
@@ -49,7 +45,9 @@ export default async function handler(req: Request): Promise<Response> {
 
   if (!clientId || !clientSecret || !jwtSecret || !adminEmail) {
     console.error("[Google OAuth Callback] Missing required env vars");
-    return new Response("Server configuration error", { status: 500 });
+    res.statusCode = 500;
+    res.end("Server configuration error");
+    return;
   }
 
   const redirectUri = `${appUrl}/api/auth/google/callback`;
@@ -71,7 +69,9 @@ export default async function handler(req: Request): Promise<Response> {
     if (!tokenRes.ok) {
       const err = await tokenRes.text().catch(() => "");
       console.error("[Google OAuth Callback] Token exchange failed:", err);
-      return new Response("Token exchange failed", { status: 500 });
+      res.statusCode = 500;
+      res.end("Token exchange failed");
+      return;
     }
 
     const tokenData = (await tokenRes.json()) as {
@@ -80,7 +80,9 @@ export default async function handler(req: Request): Promise<Response> {
     };
 
     if (!tokenData.access_token) {
-      return new Response("No access token received", { status: 500 });
+      res.statusCode = 500;
+      res.end("No access token received");
+      return;
     }
 
     // Step 2: Get user info from Google
@@ -92,9 +94,9 @@ export default async function handler(req: Request): Promise<Response> {
     );
 
     if (!userInfoRes.ok) {
-      return new Response("Failed to fetch user info from Google", {
-        status: 500,
-      });
+      res.statusCode = 500;
+      res.end("Failed to fetch user info from Google");
+      return;
     }
 
     const userInfo = (await userInfoRes.json()) as {
@@ -104,12 +106,14 @@ export default async function handler(req: Request): Promise<Response> {
       picture?: string;
     };
 
-    // Step 3: Check admin access
-    if (!userInfo.email || userInfo.email !== adminEmail) {
+    // Step 3: Check admin access (case-insensitive)
+    if (!userInfo.email || userInfo.email.trim().toLowerCase() !== adminEmail.trim().toLowerCase()) {
       console.warn(
-        `[Google OAuth Callback] Unauthorized login attempt: ${userInfo.email}`
+        `[Google OAuth Callback] Unauthorized login attempt: ${userInfo.email} (expected: ${adminEmail})`
       );
-      return Response.redirect(`${appUrl}/?auth=unauthorized`, 302);
+      res.writeHead(302, { Location: `${appUrl}/?auth=unauthorized` });
+      res.end();
+      return;
     }
 
     const openId = `google_${userInfo.sub}`;
@@ -140,15 +144,43 @@ export default async function handler(req: Request): Promise<Response> {
       ? `Path=/; HttpOnly; SameSite=Lax; Max-Age=${ONE_YEAR_MS / 1000}`
       : `Path=/; HttpOnly; SameSite=Lax; Max-Age=${ONE_YEAR_MS / 1000}; Secure`;
 
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: `${appUrl}/admin`,
-        "Set-Cookie": `${COOKIE_NAME}=${sessionToken}; ${cookieFlags}`,
-      },
+    res.writeHead(302, {
+      Location: `${appUrl}/admin`,
+      "Set-Cookie": `${COOKIE_NAME}=${sessionToken}; ${cookieFlags}`,
     });
+    res.end();
   } catch (err) {
     console.error("[Google OAuth Callback] Unexpected error:", err);
-    return new Response("OAuth callback failed", { status: 500 });
+    res.statusCode = 500;
+    res.end("OAuth callback failed");
   }
+}
+
+/**
+ * Derive the application base URL from request headers or env vars.
+ * Never hardcodes a domain — works on any Vercel deployment or custom domain.
+ */
+function getAppUrl(req: IncomingMessage): string {
+  // 1. Prefer explicit env var (e.g. if set in Vercel project settings)
+  if (process.env.VITE_APP_URL) {
+    return process.env.VITE_APP_URL.replace(/\/+$/, "");
+  }
+
+  // 2. Derive dynamically from request headers or Vercel system vars
+  const rawHost =
+    (req.headers["x-forwarded-host"] as string) ||
+    req.headers.host ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.VERCEL_URL;
+
+  if (rawHost) {
+    // If x-forwarded-host contains comma-separated proxy hops, use the client-facing first host
+    const host = rawHost.split(",")[0].trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+    const rawProto = (req.headers["x-forwarded-proto"] as string) || "";
+    const proto =
+      rawProto.split(",")[0].trim() ||
+      (host.includes("localhost") ? "http" : "https");
+    return `${proto}://${host}`;
+  }
+  return "http://localhost:3000";
 }

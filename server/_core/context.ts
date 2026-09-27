@@ -14,8 +14,14 @@ export type TrpcContext = {
   user: User | null;
 };
 
+export type CreateContextOptions = {
+  req: any;
+  res: any;
+  info?: any;
+};
+
 export async function createContext(
-  opts: CreateExpressContextOptions
+  opts: CreateContextOptions
 ): Promise<TrpcContext> {
   let user: User | null = null;
 
@@ -24,6 +30,21 @@ export async function createContext(
   } catch {
     // Authentication is optional for public procedures.
     user = null;
+  }
+
+  // Polyfill clearCookie if running in serverless Node runtime (ServerResponse)
+  const res = opts.res;
+  if (res && typeof res.clearCookie !== "function" && typeof res.setHeader === "function") {
+    (res as any).clearCookie = (name: string, options: any = {}) => {
+      const isSecure = options.secure ?? true;
+      const sameSite = options.sameSite ?? "Lax";
+      const path = options.path ?? "/";
+      res.setHeader(
+        "Set-Cookie",
+        `${name}=; Path=${path}; HttpOnly; SameSite=${sameSite}; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT${isSecure ? "; Secure" : ""}`
+      );
+      return res;
+    };
   }
 
   return {

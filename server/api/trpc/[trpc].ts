@@ -1,39 +1,42 @@
-import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import type { IncomingMessage, ServerResponse } from "node:http";
+import { nodeHTTPRequestHandler } from "@trpc/server/adapters/node-http";
 import { appRouter } from "../../routers";
-import { createFetchContext } from "../../_core/fetchContext";
+import { createContext } from "../../_core/context";
 
-function getRequestUrl(req: Request): string {
-  if (req.url.startsWith("http://") || req.url.startsWith("https://")) {
-    return req.url;
-  }
-  const host =
-    req.headers.get("x-forwarded-host") ||
-    req.headers.get("host") ||
-    process.env.VITE_APP_URL?.replace(/^https?:\/\//, "") ||
-    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
-    process.env.VERCEL_URL ||
-    "localhost:3000";
+/**
+ * Vercel Node.js runtime handler.
+ *
+ * Vercel passes a Node.js IncomingMessage + ServerResponse — NOT a Web API
+ * Request. The tRPC `nodeHTTPRequestHandler` is designed exactly for this:
+ * it converts IncomingMessage → Web Request internally and handles the
+ * response writing back to ServerResponse automatically.
+ *
+ * The `createContext` from context.ts works here because it expects
+ * Express-like req/res which is compatible with Node.js IncomingMessage.
+ */
+export default async function handler(
+  req: IncomingMessage,
+  res: ServerResponse
+) {
+  // Extract the tRPC procedure path from the URL.
+  // URL is like "/api/trpc/site.content,site.products?batch=1&..."
+  // The path segment after "/api/trpc/" is what tRPC needs.
+  const url = req.url ?? "";
+  const pathMatch = url.match(/\/api\/trpc\/([^?#]*)/);
+  const rawPath = pathMatch ? pathMatch[1] : "";
+  const path = decodeURIComponent(rawPath).replace(/^\/+|\/+$/g, "");
 
-  const proto =
-    req.headers.get("x-forwarded-proto") ||
-    (host.includes("localhost") ? "http" : "https");
-
-  return `${proto}://${host}${req.url}`;
-}
-
-export default async function handler(req: Request): Promise<Response> {
-  const fullUrl = getRequestUrl(req);
-  const request = req.url.startsWith("http") ? req : new Request(fullUrl, req);
-
-  return fetchRequestHandler({
-    endpoint: "/api/trpc",
-    req: request,
+  await nodeHTTPRequestHandler({
+    req,
+    res,
+    path,
     router: appRouter,
-    createContext: createFetchContext,
-    onError({ error, path }) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(`[tRPC Error] ${path ?? "unknown"}:`, error.message);
-      }
+    createContext,
+    onError({ error, path: errorPath }) {
+      console.error(
+        `[tRPC Error] ${errorPath ?? "unknown"}:`,
+        error.message
+      );
     },
   });
 }

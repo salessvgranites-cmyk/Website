@@ -1,5 +1,5 @@
 // server/api/trpc/[trpc].ts
-import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import { nodeHTTPRequestHandler } from "@trpc/server/adapters/node-http";
 
 // server/routers.ts
 import { z as z2 } from "zod";
@@ -1712,60 +1712,51 @@ function buildCronUser(userInfo) {
 }
 var sdk = new SDKServer();
 
-// server/_core/fetchContext.ts
-async function createFetchContext(opts) {
+// server/_core/context.ts
+async function createContext(opts) {
   let user = null;
-  const cookieHeader = opts.req.headers.get("cookie") ?? "";
-  const authHeader = opts.req.headers.get("authorization") ?? void 0;
-  const reqLike = {
-    headers: {
-      cookie: cookieHeader,
-      authorization: authHeader
-    }
-  };
   try {
-    user = await sdk.authenticateRequest(reqLike);
+    user = await sdk.authenticateRequest(opts.req);
   } catch {
     user = null;
   }
-  const res = {
-    clearCookie: (name) => {
-      opts.resHeaders.append(
+  const res = opts.res;
+  if (res && typeof res.clearCookie !== "function" && typeof res.setHeader === "function") {
+    res.clearCookie = (name, options = {}) => {
+      const isSecure = options.secure ?? true;
+      const sameSite = options.sameSite ?? "Lax";
+      const path = options.path ?? "/";
+      res.setHeader(
         "Set-Cookie",
-        `${name}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT; Secure`
+        `${name}=; Path=${path}; HttpOnly; SameSite=${sameSite}; Max-Age=0; Expires=Thu, 01 Jan 1970 00:00:00 GMT${isSecure ? "; Secure" : ""}`
       );
-    }
-  };
+      return res;
+    };
+  }
   return {
-    req: reqLike,
-    // pass the shim so getSessionCookieOptions in routers doesn't fail
-    resHeaders: opts.resHeaders,
-    user,
-    res
+    req: opts.req,
+    res: opts.res,
+    user
   };
 }
 
 // server/api/trpc/[trpc].ts
-function getRequestUrl(req) {
-  if (req.url.startsWith("http://") || req.url.startsWith("https://")) {
-    return req.url;
-  }
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || process.env.VITE_APP_URL?.replace(/^https?:\/\//, "") || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || "localhost:3000";
-  const proto = req.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
-  return `${proto}://${host}${req.url}`;
-}
-async function handler(req) {
-  const fullUrl = getRequestUrl(req);
-  const request = req.url.startsWith("http") ? req : new Request(fullUrl, req);
-  return fetchRequestHandler({
-    endpoint: "/api/trpc",
-    req: request,
+async function handler(req, res) {
+  const url = req.url ?? "";
+  const pathMatch = url.match(/\/api\/trpc\/([^?#]*)/);
+  const rawPath = pathMatch ? pathMatch[1] : "";
+  const path = decodeURIComponent(rawPath).replace(/^\/+|\/+$/g, "");
+  await nodeHTTPRequestHandler({
+    req,
+    res,
+    path,
     router: appRouter,
-    createContext: createFetchContext,
-    onError({ error, path }) {
-      if (process.env.NODE_ENV === "development") {
-        console.error(`[tRPC Error] ${path ?? "unknown"}:`, error.message);
-      }
+    createContext,
+    onError({ error, path: errorPath }) {
+      console.error(
+        `[tRPC Error] ${errorPath ?? "unknown"}:`,
+        error.message
+      );
     }
   });
 }

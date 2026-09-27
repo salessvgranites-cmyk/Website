@@ -207,28 +207,23 @@ async function upsertUser(user) {
 // server/api/auth/google/callback.ts
 var ONE_YEAR_MS = 1e3 * 60 * 60 * 24 * 365;
 var COOKIE_NAME = "app_session_id";
-function getAppUrl(req) {
-  if (process.env.VITE_APP_URL) {
-    return process.env.VITE_APP_URL.replace(/\/+$/, "");
-  }
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
-  const proto = req.headers.get("x-forwarded-proto") || (host?.includes("localhost") ? "http" : "https");
-  if (host) {
-    return `${proto}://${host}`;
-  }
-  return "http://localhost:3000";
-}
-async function handler(req) {
+async function handler(req, res) {
   const appUrl = getAppUrl(req);
-  const url = req.url.startsWith("http") ? new URL(req.url) : new URL(req.url, appUrl);
-  const code = url.searchParams.get("code");
-  const error = url.searchParams.get("error");
+  const urlStr = req.url ?? "";
+  const queryString = urlStr.includes("?") ? urlStr.split("?")[1] : "";
+  const params = new URLSearchParams(queryString);
+  const code = params.get("code");
+  const error = params.get("error");
   if (error) {
     console.error("[Google OAuth Callback] Error from Google:", error);
-    return Response.redirect(`${appUrl}/?auth=error`, 302);
+    res.writeHead(302, { Location: `${appUrl}/?auth=error` });
+    res.end();
+    return;
   }
   if (!code) {
-    return new Response("Missing OAuth code", { status: 400 });
+    res.statusCode = 400;
+    res.end("Missing OAuth code");
+    return;
   }
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
@@ -236,7 +231,9 @@ async function handler(req) {
   const adminEmail = process.env.ADMIN_EMAIL;
   if (!clientId || !clientSecret || !jwtSecret || !adminEmail) {
     console.error("[Google OAuth Callback] Missing required env vars");
-    return new Response("Server configuration error", { status: 500 });
+    res.statusCode = 500;
+    res.end("Server configuration error");
+    return;
   }
   const redirectUri = `${appUrl}/api/auth/google/callback`;
   try {
@@ -254,11 +251,15 @@ async function handler(req) {
     if (!tokenRes.ok) {
       const err = await tokenRes.text().catch(() => "");
       console.error("[Google OAuth Callback] Token exchange failed:", err);
-      return new Response("Token exchange failed", { status: 500 });
+      res.statusCode = 500;
+      res.end("Token exchange failed");
+      return;
     }
     const tokenData = await tokenRes.json();
     if (!tokenData.access_token) {
-      return new Response("No access token received", { status: 500 });
+      res.statusCode = 500;
+      res.end("No access token received");
+      return;
     }
     const userInfoRes = await fetch(
       "https://www.googleapis.com/oauth2/v3/userinfo",
@@ -267,16 +268,18 @@ async function handler(req) {
       }
     );
     if (!userInfoRes.ok) {
-      return new Response("Failed to fetch user info from Google", {
-        status: 500
-      });
+      res.statusCode = 500;
+      res.end("Failed to fetch user info from Google");
+      return;
     }
     const userInfo = await userInfoRes.json();
-    if (!userInfo.email || userInfo.email !== adminEmail) {
+    if (!userInfo.email || userInfo.email.trim().toLowerCase() !== adminEmail.trim().toLowerCase()) {
       console.warn(
-        `[Google OAuth Callback] Unauthorized login attempt: ${userInfo.email}`
+        `[Google OAuth Callback] Unauthorized login attempt: ${userInfo.email} (expected: ${adminEmail})`
       );
-      return Response.redirect(`${appUrl}/?auth=unauthorized`, 302);
+      res.writeHead(302, { Location: `${appUrl}/?auth=unauthorized` });
+      res.end();
+      return;
     }
     const openId = `google_${userInfo.sub}`;
     const name = userInfo.name ?? userInfo.email ?? "Admin";
@@ -293,17 +296,29 @@ async function handler(req) {
     const sessionToken = await new SignJWT({ openId, appId: "", name }).setProtectedHeader({ alg: "HS256", typ: "JWT" }).setExpirationTime(expirationSeconds).sign(secretKey);
     const isLocalhost = appUrl.includes("localhost");
     const cookieFlags = isLocalhost ? `Path=/; HttpOnly; SameSite=Lax; Max-Age=${ONE_YEAR_MS / 1e3}` : `Path=/; HttpOnly; SameSite=Lax; Max-Age=${ONE_YEAR_MS / 1e3}; Secure`;
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: `${appUrl}/admin`,
-        "Set-Cookie": `${COOKIE_NAME}=${sessionToken}; ${cookieFlags}`
-      }
+    res.writeHead(302, {
+      Location: `${appUrl}/admin`,
+      "Set-Cookie": `${COOKIE_NAME}=${sessionToken}; ${cookieFlags}`
     });
+    res.end();
   } catch (err) {
     console.error("[Google OAuth Callback] Unexpected error:", err);
-    return new Response("OAuth callback failed", { status: 500 });
+    res.statusCode = 500;
+    res.end("OAuth callback failed");
   }
+}
+function getAppUrl(req) {
+  if (process.env.VITE_APP_URL) {
+    return process.env.VITE_APP_URL.replace(/\/+$/, "");
+  }
+  const rawHost = req.headers["x-forwarded-host"] || req.headers.host || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  if (rawHost) {
+    const host = rawHost.split(",")[0].trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+    const rawProto = req.headers["x-forwarded-proto"] || "";
+    const proto = rawProto.split(",")[0].trim() || (host.includes("localhost") ? "http" : "https");
+    return `${proto}://${host}`;
+  }
+  return "http://localhost:3000";
 }
 export {
   handler as default

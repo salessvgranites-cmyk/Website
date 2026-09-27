@@ -1,20 +1,11 @@
 // server/api/auth/google.ts
-function getAppUrl(req) {
-  if (process.env.VITE_APP_URL) {
-    return process.env.VITE_APP_URL.replace(/\/+$/, "");
-  }
-  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
-  const proto = req.headers.get("x-forwarded-proto") || (host?.includes("localhost") ? "http" : "https");
-  if (host) {
-    return `${proto}://${host}`;
-  }
-  return "http://localhost:3000";
-}
-function handler(req) {
+function handler(req, res) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const appUrl = getAppUrl(req);
   if (!clientId) {
-    return new Response("Google OAuth Client ID not configured", { status: 500 });
+    res.statusCode = 500;
+    res.end("Google OAuth Client ID not configured");
+    return;
   }
   const redirectUri = `${appUrl}/api/auth/google/callback`;
   const params = new URLSearchParams({
@@ -25,10 +16,23 @@ function handler(req) {
     access_type: "offline",
     prompt: "select_account"
   });
-  return Response.redirect(
-    `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`,
-    302
-  );
+  res.writeHead(302, {
+    Location: `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
+  });
+  res.end();
+}
+function getAppUrl(req) {
+  if (process.env.VITE_APP_URL) {
+    return process.env.VITE_APP_URL.replace(/\/+$/, "");
+  }
+  const rawHost = req.headers["x-forwarded-host"] || req.headers.host || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  if (rawHost) {
+    const host = rawHost.split(",")[0].trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+    const rawProto = req.headers["x-forwarded-proto"] || "";
+    const proto = rawProto.split(",")[0].trim() || (host.includes("localhost") ? "http" : "https");
+    return `${proto}://${host}`;
+  }
+  return "http://localhost:3000";
 }
 export {
   handler as default
