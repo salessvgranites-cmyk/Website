@@ -4,12 +4,34 @@ import * as db from "../../../db";
 const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
 const COOKIE_NAME = "app_session_id";
 
+function getAppUrl(req: Request): string {
+  if (process.env.VITE_APP_URL) {
+    return process.env.VITE_APP_URL.replace(/\/+$/, "");
+  }
+  const host =
+    req.headers.get("x-forwarded-host") ||
+    req.headers.get("host") ||
+    process.env.VERCEL_PROJECT_PRODUCTION_URL ||
+    process.env.VERCEL_URL;
+
+  const proto =
+    req.headers.get("x-forwarded-proto") ||
+    (host?.includes("localhost") ? "http" : "https");
+
+  if (host) {
+    return `${proto}://${host}`;
+  }
+  return "http://localhost:3000";
+}
+
 export default async function handler(req: Request): Promise<Response> {
-  const url = new URL(req.url);
+  const appUrl = getAppUrl(req);
+  const url = req.url.startsWith("http")
+    ? new URL(req.url)
+    : new URL(req.url, appUrl);
+
   const code = url.searchParams.get("code");
   const error = url.searchParams.get("error");
-
-  const appUrl = process.env.VITE_APP_URL || "http://localhost:3000";
 
   if (error) {
     console.error("[Google OAuth Callback] Error from Google:", error);

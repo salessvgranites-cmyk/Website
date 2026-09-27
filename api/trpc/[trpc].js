@@ -1746,10 +1746,20 @@ async function createFetchContext(opts) {
 }
 
 // server/api/trpc/[trpc].ts
+function getRequestUrl(req) {
+  if (req.url.startsWith("http://") || req.url.startsWith("https://")) {
+    return req.url;
+  }
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || process.env.VITE_APP_URL?.replace(/^https?:\/\//, "") || process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL || "localhost:3000";
+  const proto = req.headers.get("x-forwarded-proto") || (host.includes("localhost") ? "http" : "https");
+  return `${proto}://${host}${req.url}`;
+}
 async function handler(req) {
+  const fullUrl = getRequestUrl(req);
+  const request = req.url.startsWith("http") ? req : new Request(fullUrl, req);
   return fetchRequestHandler({
     endpoint: "/api/trpc",
-    req,
+    req: request,
     router: appRouter,
     createContext: createFetchContext,
     onError({ error, path }) {
