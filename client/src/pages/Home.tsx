@@ -6,6 +6,7 @@ import {
   CheckCircle2, 
   ChevronLeft,
   ChevronRight, 
+  Facebook,
   Factory, 
   Globe, 
   Instagram, 
@@ -40,6 +41,7 @@ import {
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   
   const [form, setForm] = useState({
     name: "",
@@ -469,7 +471,10 @@ export default function Home() {
                       const item = productCollection[(productStartIndex + offset) % productCollection.length];
                       return (
                         <div key={`${item.name}-${offset}`} className="group cursor-pointer">
-                          <div className="aspect-[4/3] overflow-hidden bg-gray-200 mb-4 border border-black/5 shadow-sm rounded-sm">
+                          <div 
+                            className="aspect-[4/3] overflow-hidden bg-gray-200 mb-4 border border-black/5 shadow-sm rounded-sm"
+                            onClick={() => setLightboxImage(item.image)}
+                          >
                             <img 
                               src={item.image} 
                               alt={item.name} 
@@ -561,7 +566,10 @@ export default function Home() {
                       const item = stoneCollection[(stoneStartIndex + offset) % stoneCollection.length];
                       return (
                         <div key={`${item.name}-${offset}`} className="group cursor-pointer">
-                          <div className="aspect-[4/3] overflow-hidden bg-black mb-3 border border-white/10 shadow-md rounded-sm">
+                          <div 
+                            className="aspect-[4/3] overflow-hidden bg-black mb-3 border border-white/10 shadow-md rounded-sm"
+                            onClick={() => setLightboxImage(item.image)}
+                          >
                             <img 
                               src={item.image} 
                               alt={item.name} 
@@ -651,7 +659,10 @@ export default function Home() {
                       const item = finishesCollection[(finishStartIndex + offset) % finishesCollection.length];
                       return (
                         <div key={`${item.name}-${offset}`} className="group cursor-pointer">
-                          <div className="aspect-[4/3] overflow-hidden bg-gray-200 mb-3 border border-black/8 shadow-sm rounded-sm">
+                          <div 
+                            className="aspect-[4/3] overflow-hidden bg-gray-200 mb-3 border border-black/8 shadow-sm rounded-sm"
+                            onClick={() => setLightboxImage(item.image)}
+                          >
                             <img
                               src={item.image}
                               alt={item.name}
@@ -1050,6 +1061,7 @@ export default function Home() {
                       key={`gallery-${galleryPage}-${idx}`}
                       className="group overflow-hidden bg-gray-200 border border-black/5 shadow-sm rounded-sm aspect-[4/3] cursor-pointer"
                       style={{ animationDelay: `${(idx % 4) * 60}ms` }}
+                      onClick={() => setLightboxImage(src)}
                     >
                       <img
                         src={src}
@@ -1111,35 +1123,50 @@ export default function Home() {
                     <div className="grid grid-cols-5 gap-2 sm:gap-3 mb-8">
                       {/* 1. Quarry */}
                       <div>
-                        <div className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm">
+                        <div 
+                          className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm cursor-pointer"
+                          onClick={() => setLightboxImage(content.facilityImage1 || "/images/hero-quarry.jpg")}
+                        >
                           <img src={content.facilityImage1 || "/images/hero-quarry.jpg"} alt="Quarry" className="h-full w-full object-cover" />
                         </div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-center text-[#151310]">QUARRY</div>
                       </div>
                       {/* 2. Cutting */}
                       <div>
-                        <div className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm">
+                        <div 
+                          className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm cursor-pointer"
+                          onClick={() => setLightboxImage(content.facilityImage2 || "/images/craft-cutting.jpg")}
+                        >
                           <img src={content.facilityImage2 || "/images/craft-cutting.jpg"} alt="Cutting" className="h-full w-full object-cover" />
                         </div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-center text-[#151310]">CUTTING</div>
                       </div>
                       {/* 3. Polishing */}
                       <div>
-                        <div className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm">
+                        <div 
+                          className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm cursor-pointer"
+                          onClick={() => setLightboxImage(content.facilityImage3 || "/images/slabs-warehouse.jpg")}
+                        >
                           <img src={content.facilityImage3 || "/images/slabs-warehouse.jpg"} alt="Polishing" className="h-full w-full object-cover" />
                         </div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-center text-[#151310]">POLISHING</div>
                       </div>
                       {/* 4. Packaging */}
                       <div>
-                        <div className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm">
+                        <div 
+                          className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm cursor-pointer"
+                          onClick={() => setLightboxImage(content.facilityImage4 || "/images/monument-headstone.jpg")}
+                        >
                           <img src={content.facilityImage4 || "/images/monument-headstone.jpg"} alt="Packaging" className="h-full w-full object-cover" />
                         </div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-center text-[#151310]">PACKAGING</div>
                       </div>
                       {/* 5. Loading */}
                       <div>
-                        <div className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm">
+                        <div 
+                          className="aspect-square bg-gray-300 overflow-hidden border border-black/10 rounded-sm mb-1.5 shadow-sm cursor-pointer"
+                          onClick={() => setLightboxImage(content.facilityImage5 || "/images/vases-collection.jpg")}
+                        >
                           <img src={content.facilityImage5 || "/images/vases-collection.jpg"} alt="Loading" className="h-full w-full object-cover" />
                         </div>
                         <div className="text-[9px] font-bold uppercase tracking-[0.14em] text-center text-[#151310]">LOADING</div>
@@ -1406,14 +1433,17 @@ export default function Home() {
             {/* Socials & Copyright */}
             <div className="flex items-center gap-5 text-gray-400">
               <div className="flex items-center gap-3">
-                <a href="https://instagram.com" target="_blank" rel="noreferrer" className="hover:text-[#c8a35f] transition-colors" aria-label="Instagram">
+                <a href={content.instagramUrl || "https://instagram.com"} target="_blank" rel="noreferrer" className="hover:text-[#c8a35f] transition-colors" aria-label="Instagram">
                   <Instagram className="h-4 w-4" />
                 </a>
-                <a href="https://youtube.com" target="_blank" rel="noreferrer" className="hover:text-[#c8a35f] transition-colors" aria-label="YouTube">
+                <a href={content.youtubeUrl || "https://youtube.com"} target="_blank" rel="noreferrer" className="hover:text-[#c8a35f] transition-colors" aria-label="YouTube">
                   <Youtube className="h-4 w-4" />
                 </a>
-                <a href="https://linkedin.com" target="_blank" rel="noreferrer" className="hover:text-[#c8a35f] transition-colors" aria-label="LinkedIn">
+                <a href={content.linkedinUrl || "https://linkedin.com"} target="_blank" rel="noreferrer" className="hover:text-[#c8a35f] transition-colors" aria-label="LinkedIn">
                   <Linkedin className="h-4 w-4" />
+                </a>
+                <a href={content.facebookUrl || "https://facebook.com"} target="_blank" rel="noreferrer" className="hover:text-[#c8a35f] transition-colors" aria-label="Facebook">
+                  <Facebook className="h-4 w-4" />
                 </a>
               </div>
               <span className="text-[10px] text-gray-500 tracking-wider">
@@ -1423,6 +1453,28 @@ export default function Home() {
           </div>
         </div>
       </footer>
+      {/* ======================================================== */}
+      {/* 11. LIGHTBOX MODAL                                         */}
+      {/* ======================================================== */}
+      {lightboxImage && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 sm:p-8 backdrop-blur-sm cursor-pointer"
+          onClick={() => setLightboxImage(null)}
+        >
+          <button 
+            className="absolute top-4 right-4 sm:top-8 sm:right-8 grid h-10 w-10 place-items-center bg-black/50 text-white rounded-full hover:bg-white hover:text-black transition-colors"
+            onClick={(e) => { e.stopPropagation(); setLightboxImage(null); }}
+          >
+            <X className="h-5 w-5" />
+          </button>
+          <img 
+            src={lightboxImage} 
+            alt="Expanded view" 
+            className="max-w-full max-h-[90vh] object-contain shadow-2xl rounded"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }

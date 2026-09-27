@@ -70,6 +70,10 @@ export const DEFAULT_CONTENT = {
   whatsappTemplate: "Hello SV Granites, I visited your website and would like to enquire about your granite products and export pricing.",
   emailSubjectTemplate: "Enquiry regarding Granite Products & Supply - SV Granites",
   emailBodyTemplate: "Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!",
+  facebookUrl: "https://facebook.com",
+  instagramUrl: "https://instagram.com",
+  youtubeUrl: "https://youtube.com",
+  linkedinUrl: "https://linkedin.com",
 };
 
 export const DEFAULT_COLLECTIONS = [

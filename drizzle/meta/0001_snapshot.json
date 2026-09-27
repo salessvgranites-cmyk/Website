@@ -1,0 +1,1074 @@
+{
+  "id": "fec9d6f6-f22f-4bf7-a174-735e49e98c7f",
+  "prevId": "256f392c-55ca-4e11-80b6-8b9ef7bb51ae",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.collections": {
+      "name": "collections",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "collections_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "finish": {
+          "name": "finish",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "imageUrl": {
+          "name": "imageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "isFeatured": {
+          "name": "isFeatured",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "sortOrder": {
+          "name": "sortOrder",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "isVisible": {
+          "name": "isVisible",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.enquiries": {
+      "name": "enquiries",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "enquiries_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "projectType": {
+          "name": "projectType",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(30)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'new'"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.finishes": {
+      "name": "finishes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "finishes_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tagline": {
+          "name": "tagline",
+          "type": "varchar(240)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "badge": {
+          "name": "badge",
+          "type": "varchar(80)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "imageUrl": {
+          "name": "imageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sortOrder": {
+          "name": "sortOrder",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "isVisible": {
+          "name": "isVisible",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.gallery": {
+      "name": "gallery",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "gallery_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "title": {
+          "name": "title",
+          "type": "varchar(140)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "location": {
+          "name": "location",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "year": {
+          "name": "year",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "imageUrl": {
+          "name": "imageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sortOrder": {
+          "name": "sortOrder",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "isVisible": {
+          "name": "isVisible",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.products": {
+      "name": "products",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "products_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(120)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "imageUrl": {
+          "name": "imageUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sortOrder": {
+          "name": "sortOrder",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "isVisible": {
+          "name": "isVisible",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.sectionVisibility": {
+      "name": "sectionVisibility",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "sectionVisibility_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "sectionKey": {
+          "name": "sectionKey",
+          "type": "varchar(60)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "isVisible": {
+          "name": "isVisible",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "sectionVisibility_sectionKey_unique": {
+          "name": "sectionVisibility_sectionKey_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "sectionKey"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.siteContent": {
+      "name": "siteContent",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "siteContent_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "brandName": {
+          "name": "brandName",
+          "type": "varchar(140)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "tagline": {
+          "name": "tagline",
+          "type": "varchar(240)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "heroEyebrow": {
+          "name": "heroEyebrow",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "heroTitle": {
+          "name": "heroTitle",
+          "type": "varchar(240)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "heroCopy": {
+          "name": "heroCopy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aboutTitle": {
+          "name": "aboutTitle",
+          "type": "varchar(180)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "aboutCopy": {
+          "name": "aboutCopy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone": {
+          "name": "phone",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "whatsapp": {
+          "name": "whatsapp",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email": {
+          "name": "email",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "address": {
+          "name": "address",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "hours": {
+          "name": "hours",
+          "type": "varchar(160)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "heroImage": {
+          "name": "heroImage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "heroImage2": {
+          "name": "heroImage2",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'/images/hero-quarry.jpg'"
+        },
+        "aboutImage": {
+          "name": "aboutImage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "logoImage": {
+          "name": "logoImage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'/images/logo.jpg'"
+        },
+        "heroSubtext": {
+          "name": "heroSubtext",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Premium Indian granite products manufactured and prepared for international markets.'"
+        },
+        "facilityImage1": {
+          "name": "facilityImage1",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'/images/hero-quarry.jpg'"
+        },
+        "facilityImage2": {
+          "name": "facilityImage2",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'/images/craft-cutting.jpg'"
+        },
+        "facilityImage3": {
+          "name": "facilityImage3",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'/images/slabs-warehouse.jpg'"
+        },
+        "facilityImage4": {
+          "name": "facilityImage4",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'/images/monument-headstone.jpg'"
+        },
+        "facilityImage5": {
+          "name": "facilityImage5",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'/images/vases-collection.jpg'"
+        },
+        "facilityTitle": {
+          "name": "facilityTitle",
+          "type": "varchar(240)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'From Quarry to Container'"
+        },
+        "facilityCopy": {
+          "name": "facilityCopy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'A state-of-the-art facility with advanced machinery and a skilled team, ensuring precision at every stage.'"
+        },
+        "bannerImage": {
+          "name": "bannerImage",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'/images/monument-headstone.jpg'"
+        },
+        "mapsUrl": {
+          "name": "mapsUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "googleSheetUrl": {
+          "name": "googleSheetUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "productsEyebrow": {
+          "name": "productsEyebrow",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'OUR PRODUCTS'"
+        },
+        "productsTitle": {
+          "name": "productsTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Crafted for Lasting Impressions'"
+        },
+        "productsCopy": {
+          "name": "productsCopy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'From monumental structures to elegant accessories, our granite products are designed to meet the highest standards of quality and durability.'"
+        },
+        "collectionsEyebrow": {
+          "name": "collectionsEyebrow",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'STONE COLLECTION'"
+        },
+        "collectionsTitle": {
+          "name": "collectionsTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Nature''s Beauty. In Every Shade.'"
+        },
+        "collectionsCopy": {
+          "name": "collectionsCopy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Explore our premium range of granite stones, known for their unique patterns, colours and durability.'"
+        },
+        "finishesEyebrow": {
+          "name": "finishesEyebrow",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'SURFACE FINISHINGS'"
+        },
+        "finishesTitle": {
+          "name": "finishesTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'The Art of Every Surface.'"
+        },
+        "finishesCopy": {
+          "name": "finishesCopy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'From mirror-polished luxury to rugged flamed textures — each finish transforms stone into a distinct architectural statement.'"
+        },
+        "whyChooseEyebrow": {
+          "name": "whyChooseEyebrow",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'WHY SV GRANITES'"
+        },
+        "whyChooseTitle": {
+          "name": "whyChooseTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'The Right Partner for Your Stone Needs.'"
+        },
+        "whyFeature1Title": {
+          "name": "whyFeature1Title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Direct Manufacturing'"
+        },
+        "whyFeature1Desc": {
+          "name": "whyFeature1Desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Work directly with the source.'"
+        },
+        "whyFeature2Title": {
+          "name": "whyFeature2Title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Consistent Quality'"
+        },
+        "whyFeature2Desc": {
+          "name": "whyFeature2Desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Material and finish checked before dispatch.'"
+        },
+        "whyFeature3Title": {
+          "name": "whyFeature3Title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Custom Production'"
+        },
+        "whyFeature3Desc": {
+          "name": "whyFeature3Desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Tailored to your requirements.'"
+        },
+        "whyFeature4Title": {
+          "name": "whyFeature4Title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Export Packaging'"
+        },
+        "whyFeature4Desc": {
+          "name": "whyFeature4Desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Safe for international transport.'"
+        },
+        "whyFeature5Title": {
+          "name": "whyFeature5Title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Responsive Communication'"
+        },
+        "whyFeature5Desc": {
+          "name": "whyFeature5Desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Clear coordination from enquiry to shipment.'"
+        },
+        "whyFeature6Title": {
+          "name": "whyFeature6Title",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Long-Term Partnerships'"
+        },
+        "whyFeature6Desc": {
+          "name": "whyFeature6Desc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Built on trust and reliability.'"
+        },
+        "globalReachEyebrow": {
+          "name": "globalReachEyebrow",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'GLOBAL REACH'"
+        },
+        "globalReachTitle": {
+          "name": "globalReachTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'FROM INDIA, MADE FOR THE WORLD.'"
+        },
+        "globalReachCopy": {
+          "name": "globalReachCopy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Manufactured in South India · Prepared for international buyers.'"
+        },
+        "galleryEyebrow": {
+          "name": "galleryEyebrow",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'GALLERY'"
+        },
+        "galleryTitle": {
+          "name": "galleryTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Stone in Every Frame.'"
+        },
+        "enquiryTitle": {
+          "name": "enquiryTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'LOOKING FOR THE RIGHT STONE?'"
+        },
+        "enquiryCopy": {
+          "name": "enquiryCopy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Tell us what you''re looking for. We''ll help you find the right material, finish and specification.'"
+        },
+        "bannerTitle": {
+          "name": "bannerTitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'STONE THAT LASTS. PARTNERSHIPS THAT GROW.'"
+        },
+        "bannerSubtitle": {
+          "name": "bannerSubtitle",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'South India · India'"
+        },
+        "metric1Val": {
+          "name": "metric1Val",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'25+'"
+        },
+        "metric1Label": {
+          "name": "metric1Label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Years of Experience'"
+        },
+        "metric2Val": {
+          "name": "metric2Val",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Export Ready'"
+        },
+        "metric2Label": {
+          "name": "metric2Label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'International Packaging'"
+        },
+        "metric3Val": {
+          "name": "metric3Val",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Quality Focused'"
+        },
+        "metric3Label": {
+          "name": "metric3Label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Every Order Inspected'"
+        },
+        "metric4Val": {
+          "name": "metric4Val",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Direct Manufacturer'"
+        },
+        "metric4Label": {
+          "name": "metric4Label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'From India'"
+        },
+        "footerCopy": {
+          "name": "footerCopy",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'All rights reserved.'"
+        },
+        "whatsappTemplate": {
+          "name": "whatsappTemplate",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Hello SV Granites, I visited your website and would like to enquire about your granite products and export pricing.'"
+        },
+        "emailSubjectTemplate": {
+          "name": "emailSubjectTemplate",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Enquiry regarding Granite Products & Supply - SV Granites'"
+        },
+        "emailBodyTemplate": {
+          "name": "emailBodyTemplate",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!'"
+        },
+        "facebookUrl": {
+          "name": "facebookUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "instagramUrl": {
+          "name": "instagramUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "youtubeUrl": {
+          "name": "youtubeUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "linkedinUrl": {
+          "name": "linkedinUrl",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "''"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.users": {
+      "name": "users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "users_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "openId": {
+          "name": "openId",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(320)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "loginMethod": {
+          "name": "loginMethod",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role": {
+          "name": "role",
+          "type": "varchar(16)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'user'"
+        },
+        "createdAt": {
+          "name": "createdAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updatedAt": {
+          "name": "updatedAt",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "lastSignedIn": {
+          "name": "lastSignedIn",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "users_openId_unique": {
+          "name": "users_openId_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "openId"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {},
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

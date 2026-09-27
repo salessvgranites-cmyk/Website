@@ -1107,6 +1107,42 @@ function BrandTab({ content, setField, saving, isDirty, onSave, onImageUploaded 
             </span>
           </label>
         </div>
+
+        <h3 className="mt-8 font-cinzel admin-card-title text-xl text-white mb-5">Social Media Links</h3>
+        <div className="admin-form-grid">
+          <label className="admin-field full">
+            <span>Facebook URL</span>
+            <Input
+              placeholder="e.g. https://facebook.com/yourpage"
+              value={content.facebookUrl ?? ""}
+              onChange={e => setField("facebookUrl", e.target.value)}
+            />
+          </label>
+          <label className="admin-field full">
+            <span>Instagram URL</span>
+            <Input
+              placeholder="e.g. https://instagram.com/yourprofile"
+              value={content.instagramUrl ?? ""}
+              onChange={e => setField("instagramUrl", e.target.value)}
+            />
+          </label>
+          <label className="admin-field full">
+            <span>YouTube URL</span>
+            <Input
+              placeholder="e.g. https://youtube.com/c/yourchannel"
+              value={content.youtubeUrl ?? ""}
+              onChange={e => setField("youtubeUrl", e.target.value)}
+            />
+          </label>
+          <label className="admin-field full">
+            <span>LinkedIn URL</span>
+            <Input
+              placeholder="e.g. https://linkedin.com/company/yourcompany"
+              value={content.linkedinUrl ?? ""}
+              onChange={e => setField("linkedinUrl", e.target.value)}
+            />
+          </label>
+        </div>
       </div>
 
       {/* Hero Section & Key Metrics */}

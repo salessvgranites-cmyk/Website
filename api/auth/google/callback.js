@@ -92,6 +92,10 @@ var siteContent = pgTable("siteContent", {
   whatsappTemplate: text("whatsappTemplate").default("Hello SV Granites, I visited your website and would like to enquire about your granite products and export pricing."),
   emailSubjectTemplate: text("emailSubjectTemplate").default("Enquiry regarding Granite Products & Supply - SV Granites"),
   emailBodyTemplate: text("emailBodyTemplate").default("Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!"),
+  facebookUrl: text("facebookUrl").default(""),
+  instagramUrl: text("instagramUrl").default(""),
+  youtubeUrl: text("youtubeUrl").default(""),
+  linkedinUrl: text("linkedinUrl").default(""),
   updatedAt: timestamp("updatedAt").defaultNow().notNull()
 });
 var collections = pgTable("collections", {
@@ -161,6 +165,18 @@ var ENV = {
   forgeApiKey: process.env.BUILT_IN_FORGE_API_KEY ?? ""
 };
 
+// server/email.ts
+import nodemailer from "nodemailer";
+var adminEmail = process.env.ADMIN_EMAIL || "sales.svgranites@gmail.com";
+var emailPass = process.env.SMTP_PASS;
+var transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: adminEmail,
+    pass: emailPass
+  }
+});
+
 // server/db.ts
 var _db = null;
 async function getDb() {
@@ -228,8 +244,8 @@ async function handler(req, res) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
   const jwtSecret = process.env.JWT_SECRET;
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (!clientId || !clientSecret || !jwtSecret || !adminEmail) {
+  const adminEmail2 = process.env.ADMIN_EMAIL;
+  if (!clientId || !clientSecret || !jwtSecret || !adminEmail2) {
     console.error("[Google OAuth Callback] Missing required env vars");
     res.statusCode = 500;
     res.end("Server configuration error");
@@ -273,9 +289,9 @@ async function handler(req, res) {
       return;
     }
     const userInfo = await userInfoRes.json();
-    if (!userInfo.email || userInfo.email.trim().toLowerCase() !== adminEmail.trim().toLowerCase()) {
+    if (!userInfo.email || userInfo.email.trim().toLowerCase() !== adminEmail2.trim().toLowerCase()) {
       console.warn(
-        `[Google OAuth Callback] Unauthorized login attempt: ${userInfo.email} (expected: ${adminEmail})`
+        `[Google OAuth Callback] Unauthorized login attempt: ${userInfo.email} (expected: ${adminEmail2})`
       );
       res.writeHead(302, { Location: `${appUrl}/?auth=unauthorized` });
       res.end();

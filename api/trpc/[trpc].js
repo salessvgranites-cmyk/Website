@@ -301,6 +301,10 @@ var siteContent = pgTable("siteContent", {
   whatsappTemplate: text("whatsappTemplate").default("Hello SV Granites, I visited your website and would like to enquire about your granite products and export pricing."),
   emailSubjectTemplate: text("emailSubjectTemplate").default("Enquiry regarding Granite Products & Supply - SV Granites"),
   emailBodyTemplate: text("emailBodyTemplate").default("Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!"),
+  facebookUrl: text("facebookUrl").default(""),
+  instagramUrl: text("instagramUrl").default(""),
+  youtubeUrl: text("youtubeUrl").default(""),
+  linkedinUrl: text("linkedinUrl").default(""),
   updatedAt: timestamp("updatedAt").defaultNow().notNull()
 });
 var collections = pgTable("collections", {
@@ -684,6 +688,61 @@ function parseFlexibleDate(dateStr) {
   return /* @__PURE__ */ new Date();
 }
 
+// server/email.ts
+import nodemailer from "nodemailer";
+var adminEmail = process.env.ADMIN_EMAIL || "sales.svgranites@gmail.com";
+var emailPass = process.env.SMTP_PASS;
+var transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: adminEmail,
+    pass: emailPass
+  }
+});
+async function sendEnquiryEmailNotification(data) {
+  if (!emailPass) {
+    console.warn("[Email] SMTP_PASS not found in environment variables. Email notification skipped.");
+    return false;
+  }
+  const htmlContent = `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+      <div style="background-color: #d4af37; padding: 20px; text-align: center;">
+        <h2 style="color: #fff; margin: 0;">New Enquiry Received</h2>
+      </div>
+      <div style="padding: 20px;">
+        <p><strong>Name:</strong> ${data.name}</p>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Phone:</strong> ${data.phone}</p>
+        <p><strong>Project Type:</strong> ${data.projectType}</p>
+        <div style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+          <p><strong>Message:</strong></p>
+          <p style="white-space: pre-wrap; color: #555;">${data.message}</p>
+        </div>
+      </div>
+      <div style="background-color: #f9f9f9; padding: 15px; text-align: center; font-size: 12px; color: #777;">
+        Sent automatically from SV Granites Website
+      </div>
+    </div>
+  `;
+  try {
+    const info = await transporter.sendMail({
+      from: `"SV Granites Website" <${adminEmail}>`,
+      // sender address
+      to: adminEmail,
+      // send to the admin email
+      subject: `New Lead: ${data.name} - ${data.projectType}`,
+      // Subject line
+      html: htmlContent
+      // HTML body
+    });
+    console.log("[Email] Notification sent successfully:", info.messageId);
+    return true;
+  } catch (error) {
+    console.error("[Email] Failed to send email notification:", error);
+    return false;
+  }
+}
+
 // shared/contentDefaults.ts
 var DEFAULT_CONTENT = {
   brandName: "Sri Venkateswara Granites",
@@ -756,7 +815,11 @@ var DEFAULT_CONTENT = {
   footerCopy: "All rights reserved.",
   whatsappTemplate: "Hello SV Granites, I visited your website and would like to enquire about your granite products and export pricing.",
   emailSubjectTemplate: "Enquiry regarding Granite Products & Supply - SV Granites",
-  emailBodyTemplate: "Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!"
+  emailBodyTemplate: "Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!",
+  facebookUrl: "https://facebook.com",
+  instagramUrl: "https://instagram.com",
+  youtubeUrl: "https://youtube.com",
+  linkedinUrl: "https://linkedin.com"
 };
 var DEFAULT_COLLECTIONS = [
   { name: "INDIAN BLACK GRANITE", category: "Signature Black", description: "Deep graphite \xB7 Mineral rhythm\nTimeless elegance", finish: "Leathered / Polished", imageUrl: "/images/indian-black.jpg", isFeatured: 1, sortOrder: 1, isVisible: 1 },
@@ -1127,6 +1190,9 @@ async function updateSectionVisibility(sectionKey, isVisible) {
 async function createEnquiry(input) {
   appendEnquiryToGoogleSheet(input).catch((err) => {
     console.error("[Google Sheets] Async forward error:", err);
+  });
+  sendEnquiryEmailNotification(input).catch((err) => {
+    console.error("[Email] Async notification error:", err);
   });
   const db = await getDb();
   if (!db) return { ...input, id: Date.now(), createdAt: /* @__PURE__ */ new Date() };
