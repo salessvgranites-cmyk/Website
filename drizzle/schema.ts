@@ -85,6 +85,10 @@ export const siteContent = pgTable("siteContent", {
   whatsappTemplate: text("whatsappTemplate").default("Hello SV Granites, I visited your website and would like to enquire about your granite products and export pricing."),
   emailSubjectTemplate: text("emailSubjectTemplate").default("Enquiry regarding Granite Products & Supply - SV Granites"),
   emailBodyTemplate: text("emailBodyTemplate").default("Dear SV Granites Team,\n\nI visited your website and would like to enquire regarding your natural stone collection and pricing.\n\nProject details:\n\nThank you!"),
+  facebookUrl: text("facebookUrl").default(""),
+  instagramUrl: text("instagramUrl").default(""),
+  youtubeUrl: text("youtubeUrl").default(""),
+  linkedinUrl: text("linkedinUrl").default(""),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 

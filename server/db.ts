@@ -4,6 +4,7 @@ import { drizzle } from "drizzle-orm/neon-http";
 import { InsertUser, collections, enquiries, finishes, gallery, products, sectionVisibility, siteContent, users } from "../drizzle/schema";
 import { ENV } from './_core/env';
 import { appendEnquiryToGoogleSheet, deleteEnquiryFromGoogleSheet, fetchEnquiriesFromGoogleSheet } from "./googleSheets";
+import { sendEnquiryEmailNotification } from "./email";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -357,6 +358,9 @@ export async function updateSectionVisibility(sectionKey: string, isVisible: num
 export async function createEnquiry(input: typeof enquiries.$inferInsert) {
   appendEnquiryToGoogleSheet(input).catch(err => {
     console.error("[Google Sheets] Async forward error:", err);
+  });
+  sendEnquiryEmailNotification(input as any).catch(err => {
+    console.error("[Email] Async notification error:", err);
   });
   const db = await getDb(); if (!db) return { ...input, id: Date.now(), createdAt: new Date() };
   const result = await db.insert(enquiries).values(input).returning({ id: enquiries.id });
