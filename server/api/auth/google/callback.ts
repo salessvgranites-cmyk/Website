@@ -1,7 +1,5 @@
 import { SignJWT } from "jose";
-import * as db from "../../../server/db";
-
-// Runtime configured in vercel.json — env vars injected by Vercel automatically
+import * as db from "../../../db";
 
 const ONE_YEAR_MS = 1000 * 60 * 60 * 24 * 365;
 const COOKIE_NAME = "app_session_id";

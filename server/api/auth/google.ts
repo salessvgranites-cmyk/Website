@@ -1,4 +1,3 @@
-// Runtime configured in vercel.json — env vars injected by Vercel automatically
 export default function handler(_req: Request): Response {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const appUrl = process.env.VITE_APP_URL;
