@@ -2,10 +2,11 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import Admin from "@/pages/Admin";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
+import { Analytics } from "@vercel/analytics/react";
 
 function Router() {
   return (
@@ -20,5 +21,8 @@ function Router() {
 }
 
 export default function App() {
-  return <ErrorBoundary><ThemeProvider defaultTheme="light"><TooltipProvider><Toaster /><Router /></TooltipProvider></ThemeProvider></ErrorBoundary>;
+  const [location] = useLocation();
+  const isAdminRoute = location.startsWith("/admin");
+  
+  return <ErrorBoundary><ThemeProvider defaultTheme="light"><TooltipProvider><Toaster /><Router />{!isAdminRoute && <Analytics />}</TooltipProvider></ThemeProvider></ErrorBoundary>;
 }
