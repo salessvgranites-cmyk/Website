@@ -348,14 +348,7 @@ type TabId = typeof tabs[number]["id"];
 
 // ─── Main Admin Component ─────────────────────────────────────────────────────
 
-const optimizeCloudinaryUrl = (url: string | null | undefined): string => {
-  if (!url) return '';
-  if (url.includes('res.cloudinary.com') && !url.includes('f_auto')) {
-    return url.replace('/upload/', '/upload/f_auto,q_auto/').replace(/\.heic$/i, '.jpg').replace(/\.heif$/i, '.jpg');
-  }
-  return url;
-};
-\nexport default function Admin() {
+export default function Admin() {
   const [location, setLocation] = useLocation();
   const isTemplatesView = location === "/admin/templates" || location.startsWith("/admin/templates");
   const [activeTab, setActiveTab] = useState<TabId>("overview");
