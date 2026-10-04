@@ -34,6 +34,14 @@ async function uploadToCloudinary(file: File): Promise<string> {
   return data.secure_url as string;
 }
 
+const optimizeCloudinaryUrl = (url: string | null | undefined): string => {
+  if (!url) return "";
+  if (url.includes("res.cloudinary.com") && !url.includes("f_auto")) {
+    return url.replace("/upload/", "/upload/f_auto,q_auto/").replace(/\.heic$/i, ".jpg").replace(/\.heif$/i, ".jpg");
+  }
+  return url;
+};
+
 // ─── Image Dropzone & Uploader ────────────────────────────────────────────────
 function ImageDropzone({
   value,
@@ -95,7 +103,7 @@ function ImageDropzone({
 
       {value ? (
         <div className={`relative ${className} w-full rounded-2xl overflow-hidden border border-white/10 bg-stone-900 group shadow-sm`}>
-          <img src={value} alt="Preview" className="w-full h-full object-cover" />
+          <img src={optimizeCloudinaryUrl(value)} alt="Preview" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
             <Button
               type="button"
@@ -247,7 +255,7 @@ function EditableImage({ src, onUploaded, className = "" }: { src: string; onUpl
   return (
     <div className={`editable-image-wrapper ${className}`} onClick={() => inputRef.current?.click()} title="Click to change photo">
       <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
-      <img src={src} alt="" className="w-full h-full object-cover" />
+      <img src={optimizeCloudinaryUrl(src)} alt="" className="w-full h-full object-cover" />
       <div className="editable-image-overlay">
         {uploading ? <Loader2 className="h-6 w-6 animate-spin text-white" /> : <><Upload className="h-5 w-5 text-white" /><span className="text-xs text-white font-medium mt-1">Change photo</span></>}
       </div>
@@ -339,6 +347,7 @@ const FALLBACK_CONTENT = {
 type TabId = typeof tabs[number]["id"];
 
 // ─── Main Admin Component ─────────────────────────────────────────────────────
+
 export default function Admin() {
   const [location, setLocation] = useLocation();
   const isTemplatesView = location === "/admin/templates" || location.startsWith("/admin/templates");

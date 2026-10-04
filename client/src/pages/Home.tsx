@@ -38,6 +38,15 @@ import {
   DEFAULT_SECTION_VISIBILITY,
 } from "@shared/contentDefaults";
 
+const optimizeCloudinaryUrl = (url: string | null | undefined): string => {
+  if (!url) return "";
+  if (url.includes("res.cloudinary.com") && !url.includes("f_auto")) {
+    return url.replace("/upload/", "/upload/f_auto,q_auto/").replace(/\.heic$/i, ".jpg").replace(/\.heif$/i, ".jpg");
+  }
+  return url;
+};
+
+
 export default function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,7 +68,12 @@ export default function Home() {
   const galleryQuery = trpc.site.gallery.useQuery();
   const sectionVisibilityQuery = trpc.site.sectionVisibility.useQuery();
 
-  const content = contentQuery.data ?? DEFAULT_CONTENT;
+  const rawContent = contentQuery.data ?? DEFAULT_CONTENT;
+  const content = { ...rawContent };
+  const imageFields = ['heroImage', 'aboutImage', 'facilityImage1', 'facilityImage2', 'facilityImage3', 'facilityImage4', 'facilityImage5', 'bannerImage'] as const;
+  for (const field of imageFields) {
+    if (content[field]) content[field] = optimizeCloudinaryUrl(content[field]);
+  }
 
   const sectionVisibilityMap = (sectionVisibilityQuery.data ?? DEFAULT_SECTION_VISIBILITY).reduce(
     (acc, curr) => {
@@ -76,7 +90,7 @@ export default function Home() {
     ? productsQuery.data.map((p) => ({
         name: p.name,
         description: p.description,
-        image: p.imageUrl,
+        image: optimizeCloudinaryUrl(p.imageUrl),
       }))
     : DEFAULT_PRODUCTS.map((p) => ({
         name: p.name,
@@ -101,7 +115,7 @@ export default function Home() {
     ? collectionsQuery.data.map((c) => ({
         name: c.name,
         description: c.description,
-        image: c.imageUrl,
+        image: optimizeCloudinaryUrl(c.imageUrl),
       }))
     : DEFAULT_COLLECTIONS.map((c) => ({
         name: c.name,
@@ -127,7 +141,7 @@ export default function Home() {
         name: f.name,
         tagline: f.tagline,
         description: f.description,
-        image: f.imageUrl,
+        image: optimizeCloudinaryUrl(f.imageUrl),
         badge: f.badge,
       }))
     : DEFAULT_FINISHES.map((f) => ({
@@ -152,7 +166,7 @@ export default function Home() {
 
   // Gallery mapped from CMS or defaults
   const galleryImages = galleryQuery.data?.length
-    ? galleryQuery.data.map((g) => g.imageUrl)
+    ? galleryQuery.data.map((g) => optimizeCloudinaryUrl(g.imageUrl))
     : DEFAULT_GALLERY.map((g) => g.imageUrl);
 
   // Gallery state
